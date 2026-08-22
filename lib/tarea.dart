@@ -28,7 +28,7 @@ class Tarea {
 
   void completar() {
     completada = true;
-    print('Tarea "$titulo" marcada como completada');
+    print('Tarea "$titulo" marcada como completada.');
   }
 
   // Método agregado para manejar el recordatorio
