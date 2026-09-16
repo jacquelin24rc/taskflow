@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'task_notifier.dart';
+import 'task_state.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    const ProviderScope(
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -16,11 +23,17 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class TaskFlowScreen extends StatelessWidget {
+class TaskFlowScreen extends ConsumerWidget {
   const TaskFlowScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final taskState = ref.watch(taskProvider);
+
+    final totalTareas = taskState.tareas.length;
+    final completadas =
+        taskState.tareas.where((tarea) => tarea.completada).length;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F4FA),
       body: SafeArea(
@@ -72,11 +85,11 @@ class TaskFlowScreen extends StatelessWidget {
                         color: const Color(0xFF453A7A),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Column(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
+                          const Text(
                             'Buenos días, Jacquelin',
                             style: TextStyle(
                               color: Colors.white,
@@ -84,18 +97,18 @@ class TaskFlowScreen extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height: 5),
-                          Text(
+                          const SizedBox(height: 5),
+                          const Text(
                             'Viernes 28 de agosto',
                             style: TextStyle(
                               color: Colors.white70,
                               fontSize: 12,
                             ),
                           ),
-                          SizedBox(height: 3),
+                          const SizedBox(height: 3),
                           Text(
-                            '4 tareas registradas',
-                            style: TextStyle(
+                            '$totalTareas tareas registradas',
+                            style: const TextStyle(
                               color: Colors.white70,
                               fontSize: 12,
                             ),
@@ -134,23 +147,23 @@ class TaskFlowScreen extends StatelessWidget {
                 const SizedBox(height: 50),
 
                 // Estadísticas
-                const Row(
+                Row(
                   children: [
                     Expanded(
                       child: TarjetaEstadistica(
-                        valor: '4',
+                        valor: '$totalTareas',
                         etiqueta: 'Tareas',
                       ),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: TarjetaEstadistica(
-                        valor: '0',
+                        valor: '$completadas',
                         etiqueta: 'Completadas',
                       ),
                     ),
-                    SizedBox(width: 12),
-                    Expanded(
+                    const SizedBox(width: 12),
+                    const Expanded(
                       child: TarjetaEstadistica(
                         valor: '2',
                         etiqueta: 'Hábitos',
@@ -186,41 +199,65 @@ class TaskFlowScreen extends StatelessWidget {
 
                 const SizedBox(height: 10),
 
-                const TarjetaTarea(
-                  titulo:
-                      'Completar el laboratorio de Flutter sobre layouts y composición visual',
-                  meta: '21 ago · Universidad',
-                  prioridad: 'Alta',
+                // Botón para agregar una tarea usando Riverpod
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      final nuevoId =
+                          DateTime.now().millisecondsSinceEpoch;
+
+                      ref.read(taskProvider.notifier).agregarTarea(
+                            TareaEstado(
+                              id: nuevoId,
+                              titulo:
+                                  'Nueva tarea agregada con Riverpod',
+                              meta: 'Hoy · Universidad',
+                              prioridad: 'Media',
+                            ),
+                          );
+                    },
+                    icon: const Icon(Icons.add),
+                    label: const Text('Agregar tarea'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF453A7A),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 14,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
                 ),
 
                 const SizedBox(height: 10),
 
-                const TarjetaTarea(
-                  titulo:
-                      'Ordenar todos los apuntes y actividades pendientes de la universidad',
-                  meta: '22 ago · Universidad',
-                  prioridad: 'Media',
+                // Tareas obtenidas desde Riverpod
+                ...taskState.tareas.map(
+                  (tarea) => Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: TarjetaTarea(
+                      titulo: tarea.titulo,
+                      meta: tarea.meta,
+                      prioridad: tarea.prioridad,
+                      completada: tarea.completada,
+                      onToggle: () {
+                        ref
+                            .read(taskProvider.notifier)
+                            .alternarCompletada(tarea.id);
+                      },
+                      onEliminar: () {
+                        ref
+                            .read(taskProvider.notifier)
+                            .eliminarTarea(tarea.id);
+                      },
+                    ),
+                  ),
                 ),
 
-                const SizedBox(height: 10),
-
-                const TarjetaTarea(
-                  titulo:
-                      'Leer 20 minutos todos los días para mantener el hábito de lectura',
-                  meta: '21 ago · Hábito',
-                  prioridad: 'Media',
-                ),
-
-                const SizedBox(height: 10),
-
-                const TarjetaTarea(
-                  titulo:
-                      'Hacer ejercicio diariamente para mantener una rutina saludable',
-                  meta: '21 ago · Hábito',
-                  prioridad: 'Baja',
-                ),
-
-                const SizedBox(height: 12),
+                const SizedBox(height: 2),
 
                 // Frase
                 Container(
@@ -280,9 +317,7 @@ class TaskFlowScreen extends StatelessWidget {
   }
 }
 
-
 // WIDGET REUTILIZABLE: TARJETA DE ESTADÍSTICA
-
 
 class TarjetaEstadistica extends StatelessWidget {
   final String valor;
@@ -328,22 +363,24 @@ class TarjetaEstadistica extends StatelessWidget {
   }
 }
 
-
 // WIDGET REUTILIZABLE: TARJETA DE TAREA
-
 
 class TarjetaTarea extends StatelessWidget {
   final String titulo;
   final String meta;
   final String prioridad;
   final bool completada;
+  final VoidCallback onToggle;
+  final VoidCallback onEliminar;
 
   const TarjetaTarea({
     super.key,
     required this.titulo,
     required this.meta,
     required this.prioridad,
-    this.completada = false,
+    required this.completada,
+    required this.onToggle,
+    required this.onEliminar,
   });
 
   @override
@@ -356,12 +393,20 @@ class TarjetaTarea extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(
-            completada
-                ? Icons.check_box
-                : Icons.check_box_outline_blank,
-            size: 22,
-            color: const Color(0xFF453A7A),
+          IconButton(
+            tooltip: completada
+                ? 'Marcar como pendiente'
+                : 'Marcar como completada',
+            onPressed: onToggle,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            icon: Icon(
+              completada
+                  ? Icons.check_box
+                  : Icons.check_box_outline_blank,
+              size: 22,
+              color: const Color(0xFF453A7A),
+            ),
           ),
 
           const SizedBox(width: 10),
@@ -377,10 +422,9 @@ class TarjetaTarea extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    decoration:
-                        completada
-                            ? TextDecoration.lineThrough
-                            : null,
+                    decoration: completada
+                        ? TextDecoration.lineThrough
+                        : null,
                   ),
                 ),
                 const SizedBox(height: 5),
@@ -415,15 +459,25 @@ class TarjetaTarea extends StatelessWidget {
               ),
             ),
           ),
+
+          const SizedBox(width: 4),
+
+          IconButton(
+            tooltip: 'Eliminar tarea',
+            onPressed: onEliminar,
+            icon: const Icon(
+              Icons.delete_outline,
+              size: 20,
+              color: Colors.grey,
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
-
 // WIDGET REUTILIZABLE: BARRA INFERIOR
-
 
 class BottomItem extends StatelessWidget {
   final IconData icon;
@@ -446,20 +500,18 @@ class BottomItem extends StatelessWidget {
         Icon(
           icon,
           size: 20,
-          color:
-              active
-                  ? const Color(0xFF453A7A)
-                  : Colors.grey,
+          color: active
+              ? const Color(0xFF453A7A)
+              : Colors.grey,
         ),
         const SizedBox(height: 3),
         Text(
           label,
           style: TextStyle(
             fontSize: 10,
-            color:
-                active
-                    ? const Color(0xFF453A7A)
-                    : Colors.grey,
+            color: active
+                ? const Color(0xFF453A7A)
+                : Colors.grey,
           ),
         ),
       ],
