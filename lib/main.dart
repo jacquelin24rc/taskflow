@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'task_notifier.dart';
 import 'task_state.dart';
+import 'detalle_tarea_screen.dart';
+import 'habitos_screen.dart';
 
 void main() {
   runApp(
@@ -18,7 +21,37 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const TaskFlowScreen(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const TaskFlowScreen(),
+        '/habitos': (context) => const HabitosScreen(),
+      },
+      onGenerateRoute: (settings) {
+        if (settings.name == '/tarea') {
+          final tareaId = settings.arguments;
+
+          if (tareaId is int) {
+            return MaterialPageRoute(
+              builder: (context) => DetalleTareaScreen(
+                tareaId: tareaId,
+              ),
+            );
+          }
+
+          return MaterialPageRoute(
+            builder: (context) => Scaffold(
+              appBar: AppBar(
+                title: const Text('Detalle de tarea'),
+              ),
+              body: const Center(
+                child: Text('No se recibió una tarea válida.'),
+              ),
+            ),
+          );
+        }
+
+        return null;
+      },
     );
   }
 }
@@ -73,7 +106,7 @@ class TaskFlowScreen extends ConsumerWidget {
 
                 const SizedBox(height: 14),
 
-                // Cabecera con insignia superpuesta
+                // Cabecera
                 Stack(
                   clipBehavior: Clip.none,
                   children: [
@@ -116,7 +149,6 @@ class TaskFlowScreen extends ConsumerWidget {
                         ],
                       ),
                     ),
-
                     Positioned(
                       right: 8,
                       bottom: -38,
@@ -199,7 +231,7 @@ class TaskFlowScreen extends ConsumerWidget {
 
                 const SizedBox(height: 10),
 
-                // Botón para agregar una tarea usando Riverpod
+                // Agregar tarea con Riverpod
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
@@ -243,11 +275,22 @@ class TaskFlowScreen extends ConsumerWidget {
                       meta: tarea.meta,
                       prioridad: tarea.prioridad,
                       completada: tarea.completada,
+
+                      // Navegación hacia el detalle
+                      onAbrir: () {
+                        Navigator.pushNamed(
+                          context,
+                          '/tarea',
+                          arguments: tarea.id,
+                        );
+                      },
+
                       onToggle: () {
                         ref
                             .read(taskProvider.notifier)
                             .alternarCompletada(tarea.id);
                       },
+
                       onEliminar: () {
                         ref
                             .read(taskProvider.notifier)
@@ -289,19 +332,30 @@ class TaskFlowScreen extends ConsumerWidget {
                       top: Radius.circular(18),
                     ),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      BottomItem(
+                      const BottomItem(
                         icon: Icons.list,
                         label: 'Tareas',
                         active: true,
                       ),
-                      BottomItem(
-                        icon: Icons.water_drop,
-                        label: 'Hábitos',
+
+                      // Botón para abrir la pantalla de hábitos
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            '/habitos',
+                          );
+                        },
+                        child: const BottomItem(
+                          icon: Icons.water_drop,
+                          label: 'Hábitos',
+                        ),
                       ),
-                      BottomItem(
+
+                      const BottomItem(
                         icon: Icons.person_outline,
                         label: 'Perfil',
                       ),
@@ -372,6 +426,7 @@ class TarjetaTarea extends StatelessWidget {
   final bool completada;
   final VoidCallback onToggle;
   final VoidCallback onEliminar;
+  final VoidCallback onAbrir;
 
   const TarjetaTarea({
     super.key,
@@ -381,97 +436,101 @@ class TarjetaTarea extends StatelessWidget {
     required this.completada,
     required this.onToggle,
     required this.onEliminar,
+    required this.onAbrir,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            tooltip: completada
-                ? 'Marcar como pendiente'
-                : 'Marcar como completada',
-            onPressed: onToggle,
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
-            icon: Icon(
-              completada
-                  ? Icons.check_box
-                  : Icons.check_box_outline_blank,
-              size: 22,
-              color: const Color(0xFF453A7A),
-            ),
-          ),
-
-          const SizedBox(width: 10),
-
-          // Expanded evita el overflow horizontal.
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  titulo,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    decoration: completada
-                        ? TextDecoration.lineThrough
-                        : null,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  meta,
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 11,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(width: 8),
-
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 8,
-              vertical: 4,
-            ),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF2F0F8),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              prioridad,
-              style: const TextStyle(
-                fontSize: 10,
-                color: Color(0xFF453A7A),
-                fontWeight: FontWeight.bold,
+    return InkWell(
+      onTap: onAbrir,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            IconButton(
+              tooltip: completada
+                  ? 'Marcar como pendiente'
+                  : 'Marcar como completada',
+              onPressed: onToggle,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              icon: Icon(
+                completada
+                    ? Icons.check_box
+                    : Icons.check_box_outline_blank,
+                size: 22,
+                color: const Color(0xFF453A7A),
               ),
             ),
-          ),
 
-          const SizedBox(width: 4),
+            const SizedBox(width: 10),
 
-          IconButton(
-            tooltip: 'Eliminar tarea',
-            onPressed: onEliminar,
-            icon: const Icon(
-              Icons.delete_outline,
-              size: 20,
-              color: Colors.grey,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    titulo,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      decoration: completada
+                          ? TextDecoration.lineThrough
+                          : null,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    meta,
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+
+            const SizedBox(width: 8),
+
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8,
+                vertical: 4,
+              ),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF2F0F8),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                prioridad,
+                style: const TextStyle(
+                  fontSize: 10,
+                  color: Color(0xFF453A7A),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+
+            const SizedBox(width: 4),
+
+            IconButton(
+              tooltip: 'Eliminar tarea',
+              onPressed: onEliminar,
+              icon: const Icon(
+                Icons.delete_outline,
+                size: 20,
+                color: Colors.grey,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -75,6 +75,21 @@ class TaskNotifier extends Notifier<TaskState> {
   }
 }
 
-final taskProvider = NotifierProvider<TaskNotifier, TaskState>(
+final taskProvider =
+    NotifierProvider<TaskNotifier, TaskState>(
   TaskNotifier.new,
 );
+
+// Provider derivado para obtener una tarea por su ID.
+final taskByIdProvider =
+    Provider.family<TareaEstado?, int>((ref, id) {
+  final taskState = ref.watch(taskProvider);
+
+  for (final tarea in taskState.tareas) {
+    if (tarea.id == id) {
+      return tarea;
+    }
+  }
+
+  return null;
+});
