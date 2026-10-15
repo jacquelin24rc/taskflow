@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -5,6 +6,11 @@ import 'task_notifier.dart';
 import 'task_state.dart';
 import 'detalle_tarea_screen.dart';
 import 'habitos_screen.dart';
+import 'tarea.dart';
+import 'pantallas/nueva_tarea_screen.dart';
+import 'pantallas/tareas_remotas_screen.dart';
+import 'estado/tareas_remotas_provider.dart';
+import 'modelos/tarea.dart' as modelo;
 
 void main() {
   runApp(
@@ -25,6 +31,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const TaskFlowScreen(),
         '/habitos': (context) => const HabitosScreen(),
+        '/tareas-remotas': (context) => const TareasRemotasScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/tarea') {
@@ -59,13 +66,91 @@ class MyApp extends StatelessWidget {
 class TaskFlowScreen extends ConsumerWidget {
   const TaskFlowScreen({super.key});
 
+  Future<void> _agregarTarea(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    final nuevaTarea = await Navigator.push<Tarea>(
+      context,
+      MaterialPageRoute<Tarea>(
+        builder: (context) => const NuevaTareaScreen(),
+      ),
+    );
+
+    if (nuevaTarea == null || !context.mounted) {
+      return;
+    }
+
+    final fecha = nuevaTarea.fechaLimite;
+
+    final fechaTexto =
+        '${fecha.day.toString().padLeft(2, '0')}/'
+        '${fecha.month.toString().padLeft(2, '0')}/'
+        '${fecha.year}';
+
+    final prioridadTexto = switch (nuevaTarea.prioridad) {
+      1 => 'Alta',
+      2 => 'Media',
+      _ => 'Baja',
+    };
+
+    // Guardar la tarea localmente, como en la Semana 13.
+    ref.read(taskProvider.notifier).agregarTarea(
+      TareaEstado(
+        id: DateTime.now().microsecondsSinceEpoch,
+        titulo: nuevaTarea.titulo,
+        meta: '$fechaTexto · ${nuevaTarea.categoria}',
+        prioridad: prioridadTexto,
+      ),
+    );
+
+    // Semana 14: enviar la misma tarea a la API REST.
+    try {
+      final tareaParaApi = modelo.Tarea(
+        titulo: nuevaTarea.titulo,
+        descripcion: nuevaTarea.descripcion,
+        fechaLimite: nuevaTarea.fechaLimite,
+        categoria: nuevaTarea.categoria,
+        prioridad: nuevaTarea.prioridad,
+        completada: nuevaTarea.completada,
+      );
+
+      await ref
+          .read(tareasRemotasProvider.notifier)
+          .crear(tareaParaApi);
+
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Tarea guardada y enviada correctamente a la API.',
+          ),
+        ),
+      );
+    } catch (error) {
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'La tarea se guardó localmente, pero no se pudo '
+            'enviar a la API: $error',
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final taskState = ref.watch(taskProvider);
 
     final totalTareas = taskState.tareas.length;
-    final completadas =
-        taskState.tareas.where((tarea) => tarea.completada).length;
+
+    final completadas = taskState.tareas
+        .where((tarea) => tarea.completada)
+        .length;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F4FA),
@@ -79,7 +164,7 @@ class TaskFlowScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Barra superior
+                // Barra superior.
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -106,7 +191,7 @@ class TaskFlowScreen extends ConsumerWidget {
 
                 const SizedBox(height: 14),
 
-                // Cabecera
+                // Cabecera principal.
                 Stack(
                   clipBehavior: Clip.none,
                   children: [
@@ -178,7 +263,7 @@ class TaskFlowScreen extends ConsumerWidget {
 
                 const SizedBox(height: 50),
 
-                // Estadísticas
+                // Estadísticas.
                 Row(
                   children: [
                     Expanded(
@@ -206,7 +291,7 @@ class TaskFlowScreen extends ConsumerWidget {
 
                 const SizedBox(height: 18),
 
-                // Encabezado de tareas
+                // Encabezado de tareas.
                 const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -231,24 +316,11 @@ class TaskFlowScreen extends ConsumerWidget {
 
                 const SizedBox(height: 10),
 
-                // Agregar tarea con Riverpod
+                // Formulario de la Semana 13.
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: () {
-                      final nuevoId =
-                          DateTime.now().millisecondsSinceEpoch;
-
-                      ref.read(taskProvider.notifier).agregarTarea(
-                            TareaEstado(
-                              id: nuevoId,
-                              titulo:
-                                  'Nueva tarea agregada con Riverpod',
-                              meta: 'Hoy · Universidad',
-                              prioridad: 'Media',
-                            ),
-                          );
-                    },
+                    onPressed: () => _agregarTarea(context, ref),
                     icon: const Icon(Icons.add),
                     label: const Text('Agregar tarea'),
                     style: ElevatedButton.styleFrom(
@@ -266,7 +338,36 @@ class TaskFlowScreen extends ConsumerWidget {
 
                 const SizedBox(height: 10),
 
-                // Tareas obtenidas desde Riverpod
+                // Semana 14: acceso a las tareas de Internet.
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.pushNamed(
+                        context,
+                        '/tareas-remotas',
+                      );
+                    },
+                    icon: const Icon(Icons.cloud_outlined),
+                    label: const Text('Tareas en la nube'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF453A7A),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 14,
+                      ),
+                      side: const BorderSide(
+                        color: Color(0xFF453A7A),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                // Tareas locales administradas con Riverpod.
                 ...taskState.tareas.map(
                   (tarea) => Padding(
                     padding: const EdgeInsets.only(bottom: 10),
@@ -275,8 +376,6 @@ class TaskFlowScreen extends ConsumerWidget {
                       meta: tarea.meta,
                       prioridad: tarea.prioridad,
                       completada: tarea.completada,
-
-                      // Navegación hacia el detalle
                       onAbrir: () {
                         Navigator.pushNamed(
                           context,
@@ -284,13 +383,11 @@ class TaskFlowScreen extends ConsumerWidget {
                           arguments: tarea.id,
                         );
                       },
-
                       onToggle: () {
                         ref
                             .read(taskProvider.notifier)
                             .alternarCompletada(tarea.id);
                       },
-
                       onEliminar: () {
                         ref
                             .read(taskProvider.notifier)
@@ -302,7 +399,7 @@ class TaskFlowScreen extends ConsumerWidget {
 
                 const SizedBox(height: 2),
 
-                // Frase
+                // Frase motivacional.
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
@@ -311,7 +408,9 @@ class TaskFlowScreen extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: const Text(
-                    '“La disciplina es el puente entre las metas y los logros que realmente importan.”\n— Jim Rohn',
+                    '“La disciplina es el puente entre las metas y '
+                    'los logros que realmente importan.”\n'
+                    '— Jim Rohn',
                     style: TextStyle(
                       fontSize: 13,
                       fontStyle: FontStyle.italic,
@@ -322,7 +421,7 @@ class TaskFlowScreen extends ConsumerWidget {
 
                 const SizedBox(height: 16),
 
-                // Barra inferior
+                // Barra inferior.
                 Container(
                   width: double.infinity,
                   height: 72,
@@ -340,8 +439,6 @@ class TaskFlowScreen extends ConsumerWidget {
                         label: 'Tareas',
                         active: true,
                       ),
-
-                      // Botón para abrir la pantalla de hábitos
                       GestureDetector(
                         onTap: () {
                           Navigator.pushNamed(
@@ -354,7 +451,6 @@ class TaskFlowScreen extends ConsumerWidget {
                           label: 'Hábitos',
                         ),
                       ),
-
                       const BottomItem(
                         icon: Icons.person_outline,
                         label: 'Perfil',
@@ -371,8 +467,7 @@ class TaskFlowScreen extends ConsumerWidget {
   }
 }
 
-// WIDGET REUTILIZABLE: TARJETA DE ESTADÍSTICA
-
+// Tarjeta de estadística.
 class TarjetaEstadistica extends StatelessWidget {
   final String valor;
   final String etiqueta;
@@ -417,8 +512,7 @@ class TarjetaEstadistica extends StatelessWidget {
   }
 }
 
-// WIDGET REUTILIZABLE: TARJETA DE TAREA
-
+// Tarjeta de tarea.
 class TarjetaTarea extends StatelessWidget {
   final String titulo;
   final String meta;
@@ -536,8 +630,7 @@ class TarjetaTarea extends StatelessWidget {
   }
 }
 
-// WIDGET REUTILIZABLE: BARRA INFERIOR
-
+// Elementos de la barra inferior.
 class BottomItem extends StatelessWidget {
   final IconData icon;
   final String label;

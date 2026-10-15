@@ -1,11 +1,11 @@
+
 class Tarea {
   String titulo;
   String descripcion;
   DateTime fechaLimite;
-  bool completada = false;
-
-  // Atributo agregado para TaskFlow
-  bool recordatorio = false;
+  String categoria;
+  bool completada;
+  bool recordatorio;
 
   int _prioridad;
 
@@ -13,7 +13,10 @@ class Tarea {
     required this.titulo,
     this.descripcion = '',
     required this.fechaLimite,
+    this.categoria = 'General',
     int prioridad = 2,
+    this.completada = false,
+    this.recordatorio = false,
   }) : _prioridad = prioridad;
 
   int get prioridad => _prioridad;
@@ -31,7 +34,6 @@ class Tarea {
     print('Tarea "$titulo" marcada como completada.');
   }
 
-  // Método agregado para manejar el recordatorio
   void activarRecordatorio() {
     recordatorio = true;
     print('Recordatorio activado para "$titulo"');
