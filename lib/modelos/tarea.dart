@@ -42,6 +42,37 @@ class Tarea {
     recordatorio = true;
   }
 
+  // Convertir una tarea en datos para SQLite.
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'titulo': titulo,
+      'descripcion': descripcion,
+      'fecha_limite': fechaLimite.toIso8601String(),
+      'categoria': categoria,
+      'prioridad': prioridad,
+      'completada': completada ? 1 : 0,
+      'recordatorio': recordatorio ? 1 : 0,
+    };
+  }
+
+  // Convertir los datos de SQLite en una tarea.
+  factory Tarea.fromMap(Map<String, dynamic> map) {
+    return Tarea(
+      id: map['id'] as int?,
+      titulo: map['titulo'] as String,
+      descripcion: map['descripcion'] as String,
+      fechaLimite: DateTime.parse(
+        map['fecha_limite'] as String,
+      ),
+      categoria: map['categoria'] as String,
+      prioridad: map['prioridad'] as int,
+      completada: map['completada'] == 1,
+      recordatorio: map['recordatorio'] == 1,
+    );
+  }
+
+  // Convertir los datos recibidos de la API REST.
   factory Tarea.fromJson(Map<String, dynamic> json) {
     final titulo = json['title'];
 
@@ -63,6 +94,7 @@ class Tarea {
     );
   }
 
+  // Convertir una tarea para enviarla a la API REST.
   Map<String, dynamic> toJson() {
     return {
       'title': titulo,

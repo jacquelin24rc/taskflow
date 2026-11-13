@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'task_notifier.dart';
+import '../estado/task_notifier.dart';
 
 class DetalleTareaScreen extends ConsumerWidget {
   final int tareaId;
@@ -17,8 +17,6 @@ class DetalleTareaScreen extends ConsumerWidget {
       taskByIdProvider(tareaId),
     );
 
-    // Si el ID no existe o la tarea fue eliminada,
-    // mostramos un mensaje en lugar de provocar un error.
     if (tarea == null) {
       return Scaffold(
         appBar: AppBar(
@@ -48,21 +46,11 @@ class DetalleTareaScreen extends ConsumerWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             const SizedBox(height: 16),
-
-            Text(
-              'Meta: ${tarea.meta}',
-            ),
-
+            Text('Meta: ${tarea.meta}'),
             const SizedBox(height: 8),
-
-            Text(
-              'Prioridad: ${tarea.prioridad}',
-            ),
-
+            Text('Prioridad: ${tarea.prioridad}'),
             const SizedBox(height: 20),
-
             ElevatedButton(
               onPressed: () {
                 ref

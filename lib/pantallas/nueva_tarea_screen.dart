@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 
-import '../tarea.dart';
+import '../modelos/tarea.dart';
 import '../validacion/validadores_tarea.dart';
 
 class NuevaTareaScreen extends StatefulWidget {

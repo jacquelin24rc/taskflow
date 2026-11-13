@@ -1,5 +1,5 @@
-import 'tarea.dart';
-import 'habito_recurrente.dart';
+import 'package:taskflow/modelos/tarea.dart';
+import 'package:taskflow/modelos/habito_recurrente.dart';
 
 void main() {
   List<Tarea> tareas = [
