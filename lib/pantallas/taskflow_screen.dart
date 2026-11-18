@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../datos/preferencias_service.dart';
 import '../estado/task_notifier.dart';
@@ -15,11 +16,14 @@ class TaskFlowScreen extends ConsumerStatefulWidget {
   const TaskFlowScreen({super.key});
 
   @override
-  ConsumerState<TaskFlowScreen> createState() => _TaskFlowScreenState();
+  ConsumerState<TaskFlowScreen> createState() =>
+      _TaskFlowScreenState();
 }
 
 class _TaskFlowScreenState extends ConsumerState<TaskFlowScreen> {
-  final PreferenciasService _preferencias = PreferenciasService();
+  final PreferenciasService _preferencias =
+      PreferenciasService();
+
   bool _soloPendientes = false;
 
   @override
@@ -31,12 +35,15 @@ class _TaskFlowScreenState extends ConsumerState<TaskFlowScreen> {
 
   Future<void> _cargarPreferencia() async {
     final valor = await _preferencias.obtenerSoloPendientes();
+
     if (!mounted) return;
+
     setState(() => _soloPendientes = valor);
   }
 
   Future<void> _cambiarFiltro(bool valor) async {
     setState(() => _soloPendientes = valor);
+
     await _preferencias.guardarSoloPendientes(valor);
   }
 
@@ -45,30 +52,44 @@ class _TaskFlowScreenState extends ConsumerState<TaskFlowScreen> {
       await ref.read(taskProvider.notifier).cargarTareas();
     } catch (error) {
       if (!mounted) return;
-      _mostrarMensaje('No se pudieron cargar las tareas: $error');
+
+      _mostrarMensaje(
+        'No se pudieron cargar las tareas: $error',
+      );
     }
   }
 
   void _mostrarMensaje(String mensaje) {
     if (!mounted) return;
+
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(mensaje)),
+      SnackBar(
+        content: Text(mensaje),
+      ),
     );
   }
 
   Future<void> _alternarTarea(int id) async {
     try {
-      await ref.read(taskProvider.notifier).alternarCompletada(id);
+      await ref
+          .read(taskProvider.notifier)
+          .alternarCompletada(id);
     } catch (error) {
-      _mostrarMensaje('No se pudo actualizar la tarea: $error');
+      _mostrarMensaje(
+        'No se pudo actualizar la tarea: $error',
+      );
     }
   }
 
   Future<void> _eliminarTarea(int id) async {
     try {
-      await ref.read(taskProvider.notifier).eliminarTarea(id);
+      await ref
+          .read(taskProvider.notifier)
+          .eliminarTarea(id);
     } catch (error) {
-      _mostrarMensaje('No se pudo eliminar la tarea: $error');
+      _mostrarMensaje(
+        'No se pudo eliminar la tarea: $error',
+      );
     }
   }
 
@@ -87,16 +108,20 @@ class _TaskFlowScreenState extends ConsumerState<TaskFlowScreen> {
       return;
     }
 
-    // Primero guardar en SQLite para conservar la tarea al reiniciar.
+    // Guardar primero en SQLite.
     try {
-      await ref.read(taskProvider.notifier).agregarTarea(nuevaTarea);
+      await ref
+          .read(taskProvider.notifier)
+          .agregarTarea(nuevaTarea);
     } catch (error) {
-      _mostrarMensaje('No se pudo guardar la tarea: $error');
+      _mostrarMensaje(
+        'No se pudo guardar la tarea: $error',
+      );
       return;
     }
 
-    // La API de demostración es independiente de SQLite.
-    // Se usa otra instancia para no sobrescribir el ID local.
+    // La API anterior es independiente de SQLite
+    // y de Cloud Firestore.
     final tareaRemota = Tarea(
       titulo: nuevaTarea.titulo,
       descripcion: nuevaTarea.descripcion,
@@ -108,11 +133,17 @@ class _TaskFlowScreenState extends ConsumerState<TaskFlowScreen> {
     );
 
     try {
-      await ref.read(tareasRemotasProvider.notifier).crear(tareaRemota);
-      _mostrarMensaje('Tarea guardada en SQLite y enviada a la API.');
+      await ref
+          .read(tareasRemotasProvider.notifier)
+          .crear(tareaRemota);
+
+      _mostrarMensaje(
+        'Tarea guardada en SQLite y enviada a la API.',
+      );
     } catch (error) {
       _mostrarMensaje(
-        'Tarea guardada en SQLite. No se pudo enviar a la API: $error',
+        'Tarea guardada en SQLite. '
+        'No se pudo enviar a la API: $error',
       );
     }
   }
@@ -121,13 +152,17 @@ class _TaskFlowScreenState extends ConsumerState<TaskFlowScreen> {
   Widget build(BuildContext context) {
     final ref = this.ref;
     final taskState = ref.watch(taskProvider);
+
     final totalTareas = taskState.tareas.length;
+
     final completadas = taskState.tareas
         .where((tarea) => tarea.completada)
         .length;
 
     final tareasVisibles = _soloPendientes
-        ? taskState.tareas.where((tarea) => !tarea.completada).toList()
+        ? taskState.tareas
+            .where((tarea) => !tarea.completada)
+            .toList()
         : taskState.tareas;
 
     return Scaffold(
@@ -144,7 +179,8 @@ class _TaskFlowScreenState extends ConsumerState<TaskFlowScreen> {
               children: [
                 // Barra superior.
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment:
+                      MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
                       'TaskFlow',
@@ -166,6 +202,7 @@ class _TaskFlowScreenState extends ConsumerState<TaskFlowScreen> {
                     ),
                   ],
                 ),
+
                 const SizedBox(height: 14),
 
                 // Cabecera principal.
@@ -178,11 +215,14 @@ class _TaskFlowScreenState extends ConsumerState<TaskFlowScreen> {
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: const Color(0xFF453A7A),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius:
+                            BorderRadius.circular(20),
                       ),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment:
+                            CrossAxisAlignment.start,
+                        mainAxisAlignment:
+                            MainAxisAlignment.center,
                         children: [
                           const Text(
                             'Buenos días, Jacquelin',
@@ -237,6 +277,7 @@ class _TaskFlowScreenState extends ConsumerState<TaskFlowScreen> {
                     ),
                   ],
                 ),
+
                 const SizedBox(height: 50),
 
                 // Estadísticas.
@@ -264,11 +305,13 @@ class _TaskFlowScreenState extends ConsumerState<TaskFlowScreen> {
                     ),
                   ],
                 ),
+
                 const SizedBox(height: 18),
 
                 // Encabezado de tareas.
                 const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment:
+                      MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       'Tareas de hoy',
@@ -288,87 +331,136 @@ class _TaskFlowScreenState extends ConsumerState<TaskFlowScreen> {
                     ),
                   ],
                 ),
+
                 const SizedBox(height: 10),
 
-                // Agregar una tarea.
+                // Agregar una tarea local.
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: () => _agregarTarea(context, ref),
+                    onPressed: () =>
+                        _agregarTarea(context, ref),
                     icon: const Icon(Icons.add),
                     label: const Text('Agregar tarea'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF453A7A),
+                      backgroundColor:
+                          const Color(0xFF453A7A),
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
+                      padding:
+                          const EdgeInsets.symmetric(
                         vertical: 14,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius:
+                            BorderRadius.circular(12),
                       ),
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 10),
 
-                // Acceso a las tareas de la API.
+                // Tareas de la API anterior.
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton.icon(
                     onPressed: () {
-                      Navigator.pushNamed(
-                        context,
-                        '/tareas-remotas',
-                      );
+                      context.push('/tareas-remotas');
                     },
-                    icon: const Icon(Icons.cloud_outlined),
-                    label: const Text('Tareas en la nube'),
+                    icon: const Icon(
+                      Icons.cloud_outlined,
+                    ),
+                    label: const Text(
+                      'Tareas de la API',
+                    ),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF453A7A),
-                      padding: const EdgeInsets.symmetric(
+                      foregroundColor:
+                          const Color(0xFF453A7A),
+                      padding:
+                          const EdgeInsets.symmetric(
                         vertical: 14,
                       ),
                       side: const BorderSide(
                         color: Color(0xFF453A7A),
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius:
+                            BorderRadius.circular(12),
                       ),
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 10),
 
-                // Filtro persistente de tareas pendientes.
+                // Acceso a las tareas Firebase.
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      context.go('/tareas');
+                    },
+                    icon: const Icon(
+                      Icons.cloud_done_outlined,
+                    ),
+                    label: const Text(
+                      'Mis tareas de Firebase',
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor:
+                          const Color(0xFF453A7A),
+                      padding:
+                          const EdgeInsets.symmetric(
+                        vertical: 14,
+                      ),
+                      side: const BorderSide(
+                        color: Color(0xFF453A7A),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                // Filtro persistente.
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
                   title: const Text('Solo pendientes'),
                   value: _soloPendientes,
                   onChanged: _cambiarFiltro,
-                  activeThumbColor: const Color(0xFF453A7A),
+                  activeThumbColor:
+                      const Color(0xFF453A7A),
                 ),
 
-                // Listado de tareas.
+                // Listado de tareas SQLite.
                 ...tareasVisibles.map(
                   (tarea) => Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.only(
+                      bottom: 10,
+                    ),
                     child: TarjetaTarea(
                       titulo: tarea.titulo,
                       meta: tarea.meta,
                       prioridad: tarea.prioridad,
                       completada: tarea.completada,
                       onAbrir: () {
-                        Navigator.pushNamed(
-                          context,
+                        context.push(
                           '/tarea',
-                          arguments: tarea.id,
+                          extra: tarea.id,
                         );
                       },
-                      onToggle: () => _alternarTarea(tarea.id),
-                      onEliminar: () => _eliminarTarea(tarea.id),
+                      onToggle: () =>
+                          _alternarTarea(tarea.id),
+                      onEliminar: () =>
+                          _eliminarTarea(tarea.id),
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 2),
 
                 // Frase motivacional.
@@ -377,7 +469,8 @@ class _TaskFlowScreenState extends ConsumerState<TaskFlowScreen> {
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: const Color(0xFFEEEBF7),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius:
+                        BorderRadius.circular(14),
                   ),
                   child: const Text(
                     '“La disciplina es el puente entre las metas y '
@@ -390,6 +483,7 @@ class _TaskFlowScreenState extends ConsumerState<TaskFlowScreen> {
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 16),
 
                 // Barra inferior.
@@ -403,7 +497,8 @@ class _TaskFlowScreenState extends ConsumerState<TaskFlowScreen> {
                     ),
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    mainAxisAlignment:
+                        MainAxisAlignment.spaceAround,
                     children: [
                       const BottomItem(
                         icon: Icons.list,
@@ -412,10 +507,7 @@ class _TaskFlowScreenState extends ConsumerState<TaskFlowScreen> {
                       ),
                       GestureDetector(
                         onTap: () {
-                          Navigator.pushNamed(
-                            context,
-                            '/habitos',
-                          );
+                          context.push('/habitos');
                         },
                         child: const BottomItem(
                           icon: Icons.water_drop,

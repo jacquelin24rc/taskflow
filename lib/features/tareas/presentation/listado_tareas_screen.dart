@@ -108,6 +108,26 @@ class ListadoTareasScreen extends ConsumerWidget {
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 8,
+            ),
+            child: SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  context.push('/taskflow-local');
+                },
+                icon: const Icon(Icons.dashboard_outlined),
+                label: const Text(
+                  'Ver TaskFlow anterior (SQLite y hábitos)',
+                ),
+              ),
+            ),
+          ),
+
           Expanded(
             child: tareasAsync.when(
               loading: () => const Center(
