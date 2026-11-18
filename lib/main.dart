@@ -1,15 +1,22 @@
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'app.dart';
+import 'app/taskflow_app.dart';
 import 'datos/tareas_db.dart';
+import 'firebase_options.dart';
 import 'modelos/tarea.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Abrir la base de datos SQLite.
+  // Inicializar Firebase para la Semana 17.
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Conservar la base de datos SQLite de la Semana 16.
   final db = await TareasDb.abrir();
 
   // Consultar las tareas guardadas.
@@ -30,7 +37,7 @@ Future<void> main() async {
     await db.insertar(tareaPrueba);
   }
 
-  // Mostrar las tareas almacenadas.
+  // Mostrar las tareas almacenadas en SQLite.
   final tareas = await db.todas();
 
   for (final tarea in tareas) {
@@ -39,10 +46,10 @@ Future<void> main() async {
     );
   }
 
-  // Iniciar TaskFlow normalmente.
+  // Iniciar TaskFlow con la arquitectura de Semana 17.
   runApp(
     const ProviderScope(
-      child: MyApp(),
+      child: TaskFlowApp(),
     ),
   );
 }
