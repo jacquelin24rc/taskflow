@@ -1,4 +1,6 @@
 
+import 'dart:developer' as developer;
+
 Future<void> guardarTarea(String titulo) async {
   await Future.delayed(const Duration(seconds: 1));
 
@@ -6,7 +8,7 @@ Future<void> guardarTarea(String titulo) async {
     throw Exception('Título vacío');
   }
 
-  print('Guardada: $titulo');
+  developer.log('Guardada: $titulo');
 }
 
 Future<void> alPresionarGuardar() async {
@@ -14,9 +16,9 @@ Future<void> alPresionarGuardar() async {
     // Ahora esperamos correctamente el resultado.
     await guardarTarea('');
 
-    print('¡Listo!');
+    developer.log('¡Listo!');
   } catch (e) {
-    print('Error detectado: $e');
+    developer.log('Error detectado: $e');
   }
 }
 

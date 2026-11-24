@@ -7,18 +7,17 @@ import 'tarea_firestore.dart';
 
 class FirestoreTaskRepository implements TaskRepository {
   FirestoreTaskRepository({
-    required FirebaseFirestore firestore,
-    required String uid,
-  }) : _firestore = firestore,
-       _uid = uid;
+    required this.firestore,
+    required this.uid,
+  });
 
-  final FirebaseFirestore _firestore;
-  final String _uid;
+  final FirebaseFirestore firestore;
+  final String uid;
 
   CollectionReference<Map<String, dynamic>> get _coleccion {
-    return _firestore
+    return firestore
         .collection('usuarios')
-        .doc(_uid)
+        .doc(uid)
         .collection('tareas');
   }
 

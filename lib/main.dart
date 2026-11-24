@@ -1,5 +1,7 @@
 
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -14,6 +16,14 @@ Future<void> main() async {
   // Inicializar Firebase para la Semana 17.
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Semana 19: configurar App Check para pruebas.
+  // En modo debug se utiliza el proveedor de depuracion.
+  await FirebaseAppCheck.instance.activate(
+    providerAndroid: kDebugMode
+        ? const AndroidDebugProvider()
+        : const AndroidPlayIntegrityProvider(),
   );
 
   // Conservar la base de datos SQLite de la Semana 16.

@@ -1,5 +1,5 @@
 
-import 'dart:async';
+import 'dart:developer' as developer;
 
 Future<String> cargarPerfil() =>
     Future.delayed(const Duration(seconds: 2), () => 'Ana');
@@ -7,7 +7,7 @@ Future<String> cargarPerfil() =>
 Future<int> cargarPendientes(String perfil) async {
   await Future.delayed(const Duration(seconds: 3));
 
-  print('Consultando las tareas de $perfil');
+  developer.log('Consultando las tareas de $perfil');
   return 7;
 }
 
@@ -17,12 +17,12 @@ Future<void> main() async {
   final perfil = await cargarPerfil();
   final pendientes = await cargarPendientes(perfil);
 
-  print(
+  developer.log(
     'Tiempo total: ${reloj.elapsed.inSeconds} s',
   );
 
-  print('Perfil: $perfil');
-  print('Tareas pendientes: $pendientes');
+  developer.log('Perfil: $perfil');
+  developer.log('Tareas pendientes: $pendientes');
 
   reloj.stop();
 }

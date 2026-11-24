@@ -1,5 +1,8 @@
 
 class ValidadoresTarea {
+  static const int tituloMax = 60;
+  static const int descripcionMax = 200;
+
   // El título es obligatorio y debe tener entre 3 y 60 caracteres.
   static String? validarTitulo(String? valor) {
     final titulo = (valor ?? '').trim();
@@ -12,7 +15,7 @@ class ValidadoresTarea {
       return 'El título debe tener al menos 3 caracteres.';
     }
 
-    if (titulo.length > 60) {
+    if (titulo.length > tituloMax) {
       return 'El título no puede superar los 60 caracteres.';
     }
 
@@ -23,7 +26,7 @@ class ValidadoresTarea {
   static String? validarDescripcion(String? valor) {
     final descripcion = (valor ?? '').trim();
 
-    if (descripcion.length > 200) {
+    if (descripcion.length > descripcionMax) {
       return 'La descripción no puede superar los 200 caracteres.';
     }
 

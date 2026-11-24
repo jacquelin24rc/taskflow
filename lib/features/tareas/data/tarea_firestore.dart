@@ -1,3 +1,4 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../domain/tarea.dart';
@@ -20,6 +21,8 @@ class TareaFirestore {
       descripcion: datos['descripcion'] as String? ?? '',
       completada: datos['completada'] as bool? ?? false,
       prioridad: datos['prioridad'] as int? ?? 2,
+      fechaLimite: (datos['fechaLimite'] as Timestamp?)?.toDate(),
+      categoria: datos['categoria'] as String? ?? '',
     );
   }
 
@@ -29,6 +32,10 @@ class TareaFirestore {
       'descripcion': tarea.descripcion,
       'completada': tarea.completada,
       'prioridad': tarea.prioridad,
+      'fechaLimite': tarea.fechaLimite == null
+          ? null
+          : Timestamp.fromDate(tarea.fechaLimite!),
+      'categoria': tarea.categoria,
     };
   }
 }

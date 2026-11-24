@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -128,6 +129,42 @@ class ListadoTareasScreen extends ConsumerWidget {
             ),
           ),
 
+          // Semana 19: acceso a la prueba de Gemini.
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 8,
+            ),
+            child: SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  context.push('/gemini/prueba');
+                },
+                icon: const Icon(Icons.smart_toy_outlined),
+                label: const Text('Probar Gemini'),
+              ),
+            ),
+          ),
+
+          // Semana 19: acceso al asistente agéntico.
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 8,
+            ),
+            child: SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  context.push('/asistente');
+                },
+                icon: const Icon(Icons.auto_awesome),
+                label: const Text('Asistente de TaskFlow'),
+              ),
+            ),
+          ),
+
           Expanded(
             child: tareasAsync.when(
               loading: () => const Center(
@@ -205,10 +242,24 @@ class ListadoTareasScreen extends ConsumerWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.go('/tareas/nueva'),
-        icon: const Icon(Icons.add),
-        label: const Text('Nueva tarea'),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          FloatingActionButton.extended(
+            heroTag: 'escanear_tarea',
+            onPressed: () => context.push('/tareas/escanear'),
+            icon: const Icon(Icons.document_scanner),
+            label: const Text('Escanear tarea'),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            heroTag: 'nueva_tarea',
+            onPressed: () => context.go('/tareas/nueva'),
+            icon: const Icon(Icons.add),
+            label: const Text('Nueva tarea'),
+          ),
+        ],
       ),
     );
   }

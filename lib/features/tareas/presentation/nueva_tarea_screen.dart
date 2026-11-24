@@ -1,12 +1,17 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../validacion/validadores_tarea.dart';
+import '../../escaneo/domain/propuesta_tarea.dart';
 import '../domain/tarea.dart';
 import 'tareas_providers.dart';
 
 class NuevaTareaScreen extends ConsumerStatefulWidget {
-  const NuevaTareaScreen({super.key});
+  const NuevaTareaScreen({super.key, this.inicial});
+
+  final PropuestaTarea? inicial;
 
   @override
   ConsumerState<NuevaTareaScreen> createState() =>
@@ -19,7 +24,27 @@ class _NuevaTareaScreenState extends ConsumerState<NuevaTareaScreen> {
   final _descripcionController = TextEditingController();
 
   int _prioridad = 2;
+  DateTime? _fechaLimite;
+  String _categoria = '';
   bool _guardando = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final propuesta = widget.inicial;
+    if (propuesta == null) return;
+
+    _tituloController.text = propuesta.titulo;
+    _descripcionController.text = propuesta.descripcion;
+
+    final fecha = propuesta.fechaLimite;
+    final hoy = DateUtils.dateOnly(DateTime.now());
+
+    if (fecha != null && !fecha.isBefore(hoy)) {
+      _fechaLimite = fecha;
+    }
+  }
 
   @override
   void dispose() {
@@ -28,8 +53,35 @@ class _NuevaTareaScreenState extends ConsumerState<NuevaTareaScreen> {
     super.dispose();
   }
 
+  Future<void> _seleccionarFecha() async {
+    final hoy = DateUtils.dateOnly(DateTime.now());
+
+    final fecha = await showDatePicker(
+      context: context,
+      initialDate: _fechaLimite ?? hoy,
+      firstDate: hoy,
+      lastDate: DateTime(hoy.year + 10),
+    );
+
+    if (fecha != null && mounted) {
+      setState(() {
+        _fechaLimite = fecha;
+      });
+    }
+  }
+
   Future<void> _guardarTarea() async {
     if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    if (_fechaLimite != null &&
+        _fechaLimite!.isBefore(DateUtils.dateOnly(DateTime.now()))) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('La fecha límite no puede ser anterior a hoy.'),
+        ),
+      );
       return;
     }
 
@@ -38,9 +90,7 @@ class _NuevaTareaScreenState extends ConsumerState<NuevaTareaScreen> {
     });
 
     try {
-      final repositorio = ref.read(
-        firestoreTaskRepositoryProvider,
-      );
+      final repositorio = ref.read(firestoreTaskRepositoryProvider);
 
       if (repositorio == null) {
         throw StateError('No hay una sesión activa.');
@@ -51,6 +101,8 @@ class _NuevaTareaScreenState extends ConsumerState<NuevaTareaScreen> {
         titulo: _tituloController.text.trim(),
         descripcion: _descripcionController.text.trim(),
         prioridad: _prioridad,
+        fechaLimite: _fechaLimite,
+        categoria: _categoria,
       );
 
       await repositorio.agregar(tarea);
@@ -105,39 +157,39 @@ class _NuevaTareaScreenState extends ConsumerState<NuevaTareaScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                  if (widget.inicial != null) ...[
+                    const SizedBox(height: 16),
+                    const ListTile(
+                      leading: Icon(Icons.auto_awesome),
+                      title: Text('Datos detectados en la foto'),
+                      subtitle: Text(
+                        'Revísalos y corrígelos antes de guardar.',
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 24),
                   TextFormField(
                     controller: _tituloController,
-                    maxLength: 60,
+                    maxLength: ValidadoresTarea.tituloMax,
                     textInputAction: TextInputAction.next,
                     decoration: const InputDecoration(
                       labelText: 'Título',
                       hintText: 'Ejemplo: Estudiar Firebase',
                       border: OutlineInputBorder(),
                     ),
-                    validator: (valor) {
-                      final titulo = valor?.trim() ?? '';
-
-                      if (titulo.length < 3) {
-                        return 'El título debe tener al menos 3 caracteres.';
-                      }
-
-                      if (titulo.length > 60) {
-                        return 'El título no puede superar 60 caracteres.';
-                      }
-
-                      return null;
-                    },
+                    validator: ValidadoresTarea.validarTitulo,
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _descripcionController,
+                    maxLength: ValidadoresTarea.descripcionMax,
                     maxLines: 3,
                     decoration: const InputDecoration(
                       labelText: 'Descripción (opcional)',
                       hintText: 'Describe lo que necesitas realizar',
                       border: OutlineInputBorder(),
                     ),
+                    validator: ValidadoresTarea.validarDescripcion,
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<int>(
@@ -147,18 +199,9 @@ class _NuevaTareaScreenState extends ConsumerState<NuevaTareaScreen> {
                       border: OutlineInputBorder(),
                     ),
                     items: const [
-                      DropdownMenuItem(
-                        value: 1,
-                        child: Text('Baja'),
-                      ),
-                      DropdownMenuItem(
-                        value: 2,
-                        child: Text('Media'),
-                      ),
-                      DropdownMenuItem(
-                        value: 3,
-                        child: Text('Alta'),
-                      ),
+                      DropdownMenuItem(value: 1, child: Text('Baja')),
+                      DropdownMenuItem(value: 2, child: Text('Media')),
+                      DropdownMenuItem(value: 3, child: Text('Alta')),
                     ],
                     onChanged: _guardando
                         ? null
@@ -169,6 +212,54 @@ class _NuevaTareaScreenState extends ConsumerState<NuevaTareaScreen> {
                               });
                             }
                           },
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    initialValue: _categoria,
+                    decoration: const InputDecoration(
+                      labelText: 'Categoría',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: const [
+                      DropdownMenuItem(
+                        value: '',
+                        child: Text('Sin categoría'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Estudio',
+                        child: Text('Estudio'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Trabajo',
+                        child: Text('Trabajo'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Personal',
+                        child: Text('Personal'),
+                      ),
+                    ],
+                    onChanged: _guardando
+                        ? null
+                        : (valor) {
+                            if (valor != null) {
+                              setState(() {
+                                _categoria = valor;
+                              });
+                            }
+                          },
+                  ),
+                  const SizedBox(height: 16),
+                  OutlinedButton.icon(
+                    onPressed: _guardando ? null : _seleccionarFecha,
+                    icon: const Icon(Icons.calendar_today),
+                    label: Text(
+                      _fechaLimite == null
+                          ? 'Seleccionar fecha límite'
+                          : 'Fecha límite: '
+                              '${_fechaLimite!.day}/'
+                              '${_fechaLimite!.month}/'
+                              '${_fechaLimite!.year}',
+                    ),
                   ),
                   const SizedBox(height: 32),
                   FilledButton.icon(

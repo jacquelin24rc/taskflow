@@ -13,3 +13,4 @@ linter:
   rules:
     # Detecta funciones asincronas que no utilizan await.
     unawaited_futures: true
+  

@@ -7,11 +7,11 @@ import 'task_repository.dart';
 class AppTaskRepository implements TaskRepository {
   AppTaskRepository(
     this._db, {
-    TareasApi? api,
-  }) : _api = api;
+    this.api,
+  });
 
   final TareasDb _db;
-  final TareasApi? _api;
+  final TareasApi? api;
 
   @override
   Future<List<Tarea>> obtenerTareas() {
@@ -34,13 +34,13 @@ class AppTaskRepository implements TaskRepository {
   }
 
   Future<List<Tarea>> obtenerTareasRemotas() async {
-    final api = _api;
+    final clienteApi = api;
 
-    if (api == null) {
+    if (clienteApi == null) {
       throw StateError('La API REST no está configurada.');
     }
 
-    return api.obtenerTareas();
+    return clienteApi.obtenerTareas();
   }
 
   Future<Tarea> agregarLocalmente(Tarea tarea) {

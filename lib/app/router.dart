@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -5,13 +6,16 @@ import 'package:go_router/go_router.dart';
 import '../features/auth/presentation/auth_providers.dart';
 import '../features/auth/presentation/login_screen.dart';
 import '../features/auth/presentation/registro_screen.dart';
+import '../features/escaneo/domain/propuesta_tarea.dart';
+import '../features/escaneo/presentation/escanear_tarea_screen.dart';
 import '../features/tareas/presentation/listado_tareas_screen.dart';
 import '../features/tareas/presentation/nueva_tarea_screen.dart';
-
 import '../pantallas/taskflow_screen.dart';
 import '../pantallas/habitos_screen.dart';
 import '../pantallas/tareas_remotas_screen.dart';
 import '../pantallas/detalle_tarea_screen.dart';
+import '../features/gemini/presentation/gemini_prueba_screen.dart';
+import '../features/asistente/presentation/asistente_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final notificador = ValueNotifier<int>(0);
@@ -37,11 +41,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       final autenticado = sesion.value != null;
 
       if (!autenticado) {
-        if (enLogin || enRegistro) {
-          return null;
-        }
-
-        return '/login';
+        return (enLogin || enRegistro) ? null : '/login';
       }
 
       if (enLogin || enRegistro || enInicio) {
@@ -59,58 +59,80 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ),
       ),
-
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),
       ),
-
       GoRoute(
         path: '/registro',
         builder: (context, state) => const RegistroScreen(),
       ),
-
       GoRoute(
         path: '/tareas',
-        builder: (context, state) => const ListadoTareasScreen(),
+        builder: (context, state) =>
+            const ListadoTareasScreen(),
       ),
-
       GoRoute(
         path: '/tareas/nueva',
-        builder: (context, state) => const NuevaTareaScreen(),
+        builder: (context, state) {
+          final propuesta = state.extra;
+
+          return NuevaTareaScreen(
+            inicial: propuesta is PropuestaTarea
+                ? propuesta
+                : null,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/tareas/escanear',
+        builder: (context, state) =>
+            const EscanearTareaScreen(),
+      ),
+      GoRoute(
+        path: '/gemini/prueba',
+        builder: (context, state) =>
+            const GeminiPruebaScreen(),
       ),
 
-      // Pantalla principal de las semanas anteriores.
+      // Semana 19: asistente agéntico.
+      GoRoute(
+        path: '/asistente',
+        builder: (context, state) =>
+            const AsistenteScreen(),
+      ),
+
       GoRoute(
         path: '/taskflow-local',
-        builder: (context, state) => const TaskFlowScreen(),
+        builder: (context, state) =>
+            const TaskFlowScreen(),
       ),
-
-      // Pantalla de hábitos.
       GoRoute(
         path: '/habitos',
-        builder: (context, state) => const HabitosScreen(),
+        builder: (context, state) =>
+            const HabitosScreen(),
       ),
-
-      // Tareas de la API anterior.
       GoRoute(
         path: '/tareas-remotas',
-        builder: (context, state) => const TareasRemotasScreen(),
+        builder: (context, state) =>
+            const TareasRemotasScreen(),
       ),
-
-      // Detalle de una tarea local.
       GoRoute(
         path: '/tarea',
         builder: (context, state) {
           final tareaId = state.extra;
 
           if (tareaId is int) {
-            return DetalleTareaScreen(tareaId: tareaId);
+            return DetalleTareaScreen(
+              tareaId: tareaId,
+            );
           }
 
           return const Scaffold(
             body: Center(
-              child: Text('No se recibió una tarea válida.'),
+              child: Text(
+                'No se recibió una tarea válida.',
+              ),
             ),
           );
         },
