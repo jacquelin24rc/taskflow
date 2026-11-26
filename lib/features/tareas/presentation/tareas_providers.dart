@@ -20,10 +20,7 @@ final firestoreTaskRepositoryProvider = Provider<TaskRepository?>((ref) {
 
   final firestore = ref.watch(firebaseFirestoreProvider);
 
-  return FirestoreTaskRepository(
-    firestore: firestore,
-    uid: usuario.uid,
-  );
+  return FirestoreTaskRepository(firestore: firestore, uid: usuario.uid);
 });
 
 final tareasFirestoreProvider = StreamProvider<List<Tarea>>((ref) {

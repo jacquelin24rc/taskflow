@@ -1,4 +1,3 @@
-
 import 'package:firebase_ai/firebase_ai.dart';
 
 import '../domain/herramienta.dart';
@@ -10,14 +9,10 @@ class GeminiModeloAgente implements ModeloAgente {
   Schema _esquemaParametro(Parametro parametro) {
     switch (parametro.tipo) {
       case 'boolean':
-        return Schema.boolean(
-          description: parametro.descripcion,
-        );
+        return Schema.boolean(description: parametro.descripcion);
 
       case 'string':
-        return Schema.string(
-          description: parametro.descripcion,
-        );
+        return Schema.string(description: parametro.descripcion);
 
       default:
         throw ArgumentError(
@@ -26,9 +21,7 @@ class GeminiModeloAgente implements ModeloAgente {
     }
   }
 
-  FunctionDeclaration _declaracionGemini(
-    HerramientaAgente herramienta,
-  ) {
+  FunctionDeclaration _declaracionGemini(HerramientaAgente herramienta) {
     return FunctionDeclaration(
       herramienta.nombre,
       herramienta.descripcion,
@@ -128,24 +121,17 @@ REGLAS GENERALES:
         }
 
         return Content.model([
-          if (mensaje.texto != null)
-            TextPart(mensaje.texto!),
+          if (mensaje.texto != null) TextPart(mensaje.texto!),
           for (final llamada in mensaje.llamadas)
-            FunctionCall(
-              llamada.nombre,
-              llamada.argumentos,
-            ),
+            FunctionCall(llamada.nombre, llamada.argumentos),
         ]);
 
       case MensajeResultados(:final resultados):
         return Content.functionResponses([
           for (final resultado in resultados)
-            FunctionResponse(
-              resultado.nombre,
-              {
-                'resultado': resultado.resultado,
-              },
-            ),
+            FunctionResponse(resultado.nombre, {
+              'resultado': resultado.resultado,
+            }),
         ]);
     }
   }
@@ -157,9 +143,7 @@ REGLAS GENERALES:
   ) async {
     final modelo = FirebaseAI.googleAI().generativeModel(
       model: 'gemini-3.5-flash-lite',
-      systemInstruction: Content.system(
-        _instruccionesDelSistema(),
-      ),
+      systemInstruction: Content.system(_instruccionesDelSistema()),
       tools: [
         Tool.functionDeclarations(
           herramientas.map(_declaracionGemini).toList(),
@@ -168,17 +152,11 @@ REGLAS GENERALES:
     );
 
     final respuesta = await modelo
-        .generateContent(
-          historial.map(_aContent),
-        )
-        .timeout(
-          const Duration(seconds: 45),
-        );
+        .generateContent(historial.map(_aContent))
+        .timeout(const Duration(seconds: 45));
 
     if (respuesta.candidates.isEmpty) {
-      throw StateError(
-        'Gemini no devolvió una respuesta válida.',
-      );
+      throw StateError('Gemini no devolvió una respuesta válida.');
     }
 
     final contenido = respuesta.candidates.first.content;
@@ -188,14 +166,12 @@ REGLAS GENERALES:
         .map((parte) => parte.text)
         .join('\n');
 
-    final llamadas = respuesta.functionCalls.map(
-      (llamada) {
-        return LlamadaHerramienta(
-          llamada.name,
-          Map<String, Object?>.from(llamada.args),
-        );
-      },
-    ).toList();
+    final llamadas = respuesta.functionCalls.map((llamada) {
+      return LlamadaHerramienta(
+        llamada.name,
+        Map<String, Object?>.from(llamada.args),
+      );
+    }).toList();
 
     final mensaje = MensajeModelo(
       texto: textos.isEmpty ? null : textos,

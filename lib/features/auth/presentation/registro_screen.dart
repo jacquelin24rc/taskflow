@@ -52,9 +52,7 @@ class _RegistroScreenState extends ConsumerState<RegistroScreen> {
     } on AuthException catch (error) {
       _mostrarError(error.mensaje);
     } catch (_) {
-      _mostrarError(
-        'No se pudo crear la cuenta. Inténtalo nuevamente.',
-      );
+      _mostrarError('No se pudo crear la cuenta. Inténtalo nuevamente.');
     } finally {
       if (mounted) {
         setState(() {
@@ -67,18 +65,15 @@ class _RegistroScreenState extends ConsumerState<RegistroScreen> {
   void _mostrarError(String mensaje) {
     if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(mensaje)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(mensaje)));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Crear cuenta'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Crear cuenta'), centerTitle: true),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -99,10 +94,7 @@ class _RegistroScreenState extends ConsumerState<RegistroScreen> {
                   const Text(
                     'Crea tu cuenta en TaskFlow',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   const Text(
@@ -211,21 +203,15 @@ class _RegistroScreenState extends ConsumerState<RegistroScreen> {
                           ? const SizedBox(
                               height: 20,
                               width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                              ),
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Text('Crear cuenta'),
                     ),
                   ),
                   const SizedBox(height: 16),
                   TextButton(
-                    onPressed: _cargando
-                        ? null
-                        : () => context.go('/login'),
-                    child: const Text(
-                      '¿Ya tienes cuenta? Inicia sesión',
-                    ),
+                    onPressed: _cargando ? null : () => context.go('/login'),
+                    child: const Text('¿Ya tienes cuenta? Inicia sesión'),
                   ),
                 ],
               ),

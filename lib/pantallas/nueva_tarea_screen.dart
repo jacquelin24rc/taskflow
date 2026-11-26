@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import '../modelos/tarea.dart';
@@ -66,18 +65,16 @@ class _NuevaTareaScreenState extends State<NuevaTareaScreen> {
   }
 
   void _guardarTarea() {
-    final formularioValido =
-        _formKey.currentState?.validate() ?? false;
+    final formularioValido = _formKey.currentState?.validate() ?? false;
 
-    final errorFecha =
-        ValidadoresTarea.validarFecha(_fechaLimite);
+    final errorFecha = ValidadoresTarea.validarFecha(_fechaLimite);
 
     if (!formularioValido) return;
 
     if (errorFecha != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorFecha)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(errorFecha)));
       return;
     }
 
@@ -114,15 +111,10 @@ class _NuevaTareaScreenState extends State<NuevaTareaScreen> {
             children: [
               const Text(
                 'Crear nueva tarea',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Completa la información para registrar tu tarea.',
-              ),
+              const Text('Completa la información para registrar tu tarea.'),
               const SizedBox(height: 24),
 
               TextFormField(
@@ -179,18 +171,9 @@ class _NuevaTareaScreenState extends State<NuevaTareaScreen> {
                   border: OutlineInputBorder(),
                 ),
                 items: const [
-                  DropdownMenuItem(
-                    value: 1,
-                    child: Text('Alta'),
-                  ),
-                  DropdownMenuItem(
-                    value: 2,
-                    child: Text('Media'),
-                  ),
-                  DropdownMenuItem(
-                    value: 3,
-                    child: Text('Baja'),
-                  ),
+                  DropdownMenuItem(value: 1, child: Text('Alta')),
+                  DropdownMenuItem(value: 2, child: Text('Media')),
+                  DropdownMenuItem(value: 3, child: Text('Baja')),
                 ],
                 onChanged: (valor) {
                   if (valor != null) {
@@ -235,9 +218,7 @@ class _NuevaTareaScreenState extends State<NuevaTareaScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF6750A4),
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 16,
-                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                 ),
               ),

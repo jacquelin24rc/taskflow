@@ -1,3 +1,4 @@
+
 # Miscellaneous
 *.class
 *.log
@@ -18,10 +19,8 @@ migrate_working_dir/
 *.iws
 .idea/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# VS Code local configuration
+.vscode/
 
 # Flutter/Dart/Pub related
 **/doc/api/
@@ -43,3 +42,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Semana 20 - Archivos locales de pruebas y depuración
+/test/failures/
+/devtools_options.yaml

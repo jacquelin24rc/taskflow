@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -16,6 +15,7 @@ import '../pantallas/tareas_remotas_screen.dart';
 import '../pantallas/detalle_tarea_screen.dart';
 import '../features/gemini/presentation/gemini_prueba_screen.dart';
 import '../features/asistente/presentation/asistente_screen.dart';
+import '../features/rendimiento/presentation/rendimiento_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final notificador = ValueNotifier<int>(0);
@@ -53,24 +53,17 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: '/inicio',
-        builder: (context, state) => const Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
-        ),
+        builder: (context, state) =>
+            const Scaffold(body: Center(child: CircularProgressIndicator())),
       ),
-      GoRoute(
-        path: '/login',
-        builder: (context, state) => const LoginScreen(),
-      ),
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(
         path: '/registro',
         builder: (context, state) => const RegistroScreen(),
       ),
       GoRoute(
         path: '/tareas',
-        builder: (context, state) =>
-            const ListadoTareasScreen(),
+        builder: (context, state) => const ListadoTareasScreen(),
       ),
       GoRoute(
         path: '/tareas/nueva',
@@ -78,44 +71,42 @@ final routerProvider = Provider<GoRouter>((ref) {
           final propuesta = state.extra;
 
           return NuevaTareaScreen(
-            inicial: propuesta is PropuestaTarea
-                ? propuesta
-                : null,
+            inicial: propuesta is PropuestaTarea ? propuesta : null,
           );
         },
       ),
       GoRoute(
         path: '/tareas/escanear',
-        builder: (context, state) =>
-            const EscanearTareaScreen(),
+        builder: (context, state) => const EscanearTareaScreen(),
       ),
       GoRoute(
         path: '/gemini/prueba',
-        builder: (context, state) =>
-            const GeminiPruebaScreen(),
+        builder: (context, state) => const GeminiPruebaScreen(),
       ),
 
       // Semana 19: asistente agéntico.
       GoRoute(
         path: '/asistente',
-        builder: (context, state) =>
-            const AsistenteScreen(),
+        builder: (context, state) => const AsistenteScreen(),
+      ),
+
+      // Semana 20: laboratorio de rendimiento.
+      GoRoute(
+        path: '/rendimiento',
+        builder: (context, state) => const RendimientoScreen(),
       ),
 
       GoRoute(
         path: '/taskflow-local',
-        builder: (context, state) =>
-            const TaskFlowScreen(),
+        builder: (context, state) => const TaskFlowScreen(),
       ),
       GoRoute(
         path: '/habitos',
-        builder: (context, state) =>
-            const HabitosScreen(),
+        builder: (context, state) => const HabitosScreen(),
       ),
       GoRoute(
         path: '/tareas-remotas',
-        builder: (context, state) =>
-            const TareasRemotasScreen(),
+        builder: (context, state) => const TareasRemotasScreen(),
       ),
       GoRoute(
         path: '/tarea',
@@ -123,17 +114,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           final tareaId = state.extra;
 
           if (tareaId is int) {
-            return DetalleTareaScreen(
-              tareaId: tareaId,
-            );
+            return DetalleTareaScreen(tareaId: tareaId);
           }
 
           return const Scaffold(
-            body: Center(
-              child: Text(
-                'No se recibió una tarea válida.',
-              ),
-            ),
+            body: Center(child: Text('No se recibió una tarea válida.')),
           );
         },
       ),

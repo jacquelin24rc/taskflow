@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:convert';
 
@@ -26,15 +25,9 @@ class TareasApi {
 
   // GET: obtener 15 tareas del servidor.
   Future<List<Tarea>> obtenerTareas() async {
-    final uri = Uri.https(
-      _host,
-      '/todos',
-      {'_limit': '15'},
-    );
+    final uri = Uri.https(_host, '/todos', {'_limit': '15'});
 
-    final respuesta = await _enviar(
-      () => _client.get(uri),
-    );
+    final respuesta = await _enviar(() => _client.get(uri));
 
     if (respuesta.statusCode != 200) {
       throw ApiException(
@@ -76,9 +69,7 @@ class TareasApi {
     final respuesta = await _enviar(
       () => _client.post(
         uri,
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
         body: jsonEncode(tarea.toJson()),
       ),
     );
@@ -93,9 +84,7 @@ class TareasApi {
 
     final datos = _decodificar(respuesta.body);
 
-    final id = datos is Map<String, dynamic>
-        ? datos['id']
-        : null;
+    final id = datos is Map<String, dynamic> ? datos['id'] : null;
 
     tarea.id = id is int ? id : null;
 

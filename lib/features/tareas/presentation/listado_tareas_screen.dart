@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -10,18 +9,13 @@ import 'tareas_providers.dart';
 class ListadoTareasScreen extends ConsumerWidget {
   const ListadoTareasScreen({super.key});
 
-  Future<void> _cerrarSesion(
-    WidgetRef ref,
-    BuildContext context,
-  ) async {
+  Future<void> _cerrarSesion(WidgetRef ref, BuildContext context) async {
     try {
       await ref.read(authRepositoryProvider).cerrarSesion();
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No se pudo cerrar la sesión.'),
-          ),
+          const SnackBar(content: Text('No se pudo cerrar la sesión.')),
         );
       }
     }
@@ -33,25 +27,19 @@ class ListadoTareasScreen extends ConsumerWidget {
     Tarea tarea,
   ) async {
     try {
-      final repositorio = ref.read(
-        firestoreTaskRepositoryProvider,
-      );
+      final repositorio = ref.read(firestoreTaskRepositoryProvider);
 
       if (repositorio == null) {
         throw StateError('No hay una sesión activa.');
       }
 
       await repositorio.actualizar(
-        tarea.copyWith(
-          completada: !tarea.completada,
-        ),
+        tarea.copyWith(completada: !tarea.completada),
       );
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No se pudo actualizar la tarea.'),
-          ),
+          const SnackBar(content: Text('No se pudo actualizar la tarea.')),
         );
       }
     }
@@ -63,9 +51,7 @@ class ListadoTareasScreen extends ConsumerWidget {
     Tarea tarea,
   ) async {
     try {
-      final repositorio = ref.read(
-        firestoreTaskRepositoryProvider,
-      );
+      final repositorio = ref.read(firestoreTaskRepositoryProvider);
 
       if (repositorio == null) {
         throw StateError('No hay una sesión activa.');
@@ -75,9 +61,7 @@ class ListadoTareasScreen extends ConsumerWidget {
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No se pudo eliminar la tarea.'),
-          ),
+          const SnackBar(content: Text('No se pudo eliminar la tarea.')),
         );
       }
     }
@@ -92,6 +76,12 @@ class ListadoTareasScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Mis tareas'),
         actions: [
+          // Semana 20: laboratorio de rendimiento.
+          IconButton(
+            tooltip: 'Laboratorio de rendimiento',
+            icon: const Icon(Icons.timer_outlined),
+            onPressed: () => context.push('/rendimiento'),
+          ),
           IconButton(
             tooltip: 'Cerrar sesión',
             icon: const Icon(Icons.logout),
@@ -111,10 +101,7 @@ class ListadoTareasScreen extends ConsumerWidget {
             ),
 
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 8,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
@@ -122,19 +109,14 @@ class ListadoTareasScreen extends ConsumerWidget {
                   context.push('/taskflow-local');
                 },
                 icon: const Icon(Icons.dashboard_outlined),
-                label: const Text(
-                  'Ver TaskFlow anterior (SQLite y hábitos)',
-                ),
+                label: const Text('Ver TaskFlow anterior (SQLite y hábitos)'),
               ),
             ),
           ),
 
           // Semana 19: acceso a la prueba de Gemini.
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 8,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
@@ -149,10 +131,7 @@ class ListadoTareasScreen extends ConsumerWidget {
 
           // Semana 19: acceso al asistente agéntico.
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 8,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
@@ -167,9 +146,7 @@ class ListadoTareasScreen extends ConsumerWidget {
 
           Expanded(
             child: tareasAsync.when(
-              loading: () => const Center(
-                child: CircularProgressIndicator(),
-              ),
+              loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, stackTrace) => const Center(
                 child: Padding(
                   padding: EdgeInsets.all(24),
@@ -183,9 +160,7 @@ class ListadoTareasScreen extends ConsumerWidget {
               data: (tareas) {
                 if (tareas.isEmpty) {
                   return const Center(
-                    child: Text(
-                      'Todavía no tienes tareas guardadas.',
-                    ),
+                    child: Text('Todavía no tienes tareas guardadas.'),
                   );
                 }
 
@@ -200,11 +175,7 @@ class ListadoTareasScreen extends ConsumerWidget {
                         leading: Checkbox(
                           value: tarea.completada,
                           onChanged: (_) {
-                            _alternarCompletada(
-                              ref,
-                              context,
-                              tarea,
-                            );
+                            _alternarCompletada(ref, context, tarea);
                           },
                         ),
                         title: Text(
@@ -219,18 +190,14 @@ class ListadoTareasScreen extends ConsumerWidget {
                           tarea.descripcion.isEmpty
                               ? 'Prioridad: ${tarea.prioridad}'
                               : '${tarea.descripcion}\n'
-                                  'Prioridad: ${tarea.prioridad}',
+                                    'Prioridad: ${tarea.prioridad}',
                         ),
                         isThreeLine: tarea.descripcion.isNotEmpty,
                         trailing: IconButton(
                           tooltip: 'Eliminar tarea',
                           icon: const Icon(Icons.delete_outline),
                           onPressed: () {
-                            _eliminarTarea(
-                              ref,
-                              context,
-                              tarea,
-                            );
+                            _eliminarTarea(ref, context, tarea);
                           },
                         ),
                       ),

@@ -1,4 +1,3 @@
-
 class Parametro {
   const Parametro({
     required this.tipo,
@@ -18,9 +17,7 @@ abstract interface class HerramientaAgente {
 
   Map<String, Parametro> get parametros;
 
-  Future<AccionPreparada> preparar(
-    Map<String, Object?> argumentos,
-  );
+  Future<AccionPreparada> preparar(Map<String, Object?> argumentos);
 }
 
 sealed class AccionPreparada {
@@ -34,18 +31,13 @@ final class AccionInvalida extends AccionPreparada {
 }
 
 final class AccionLectura extends AccionPreparada {
-  const AccionLectura({
-    required this.ejecutar,
-  });
+  const AccionLectura({required this.ejecutar});
 
   final Future<String> Function() ejecutar;
 }
 
 final class AccionModificacion extends AccionPreparada {
-  const AccionModificacion({
-    required this.descripcion,
-    required this.ejecutar,
-  });
+  const AccionModificacion({required this.descripcion, required this.ejecutar});
 
   final String descripcion;
   final Future<String> Function() ejecutar;

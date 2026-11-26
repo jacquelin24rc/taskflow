@@ -1,4 +1,3 @@
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:taskflow/modelos/tarea.dart';
 
@@ -27,41 +26,27 @@ void main() {
 
     test('3. JSON sin título', () {
       expect(
-        () => Tarea.fromJson({
-          'id': 3,
-          'completed': false,
-        }),
+        () => Tarea.fromJson({'id': 3, 'completed': false}),
         throwsException,
       );
     });
 
     test('4. JSON con título vacío', () {
       expect(
-        () => Tarea.fromJson({
-          'id': 4,
-          'title': '',
-          'completed': false,
-        }),
+        () => Tarea.fromJson({'id': 4, 'title': '', 'completed': false}),
         throwsException,
       );
     });
 
     test('5. JSON con título que no es texto', () {
       expect(
-        () => Tarea.fromJson({
-          'id': 5,
-          'title': 123,
-          'completed': false,
-        }),
+        () => Tarea.fromJson({'id': 5, 'title': 123, 'completed': false}),
         throwsException,
       );
     });
 
     test('6. JSON sin estado de completado', () {
-      final tarea = Tarea.fromJson({
-        'id': 6,
-        'title': 'Repasar Dart',
-      });
+      final tarea = Tarea.fromJson({'id': 6, 'title': 'Repasar Dart'});
 
       expect(tarea.titulo, 'Repasar Dart');
     });

@@ -18,23 +18,18 @@ class FirebaseAuthRepository implements AuthRepository {
   final FirebaseAuth _firebaseAuth;
 
   Usuario _convertirUsuario(User usuario) {
-    return Usuario(
-      uid: usuario.uid,
-      correo: usuario.email ?? '',
-    );
+    return Usuario(uid: usuario.uid, correo: usuario.email ?? '');
   }
 
   @override
   Stream<Usuario?> observarSesion() {
-    return _firebaseAuth.authStateChanges().map(
-      (usuario) {
-        if (usuario == null) {
-          return null;
-        }
+    return _firebaseAuth.authStateChanges().map((usuario) {
+      if (usuario == null) {
+        return null;
+      }
 
-        return _convertirUsuario(usuario);
-      },
-    );
+      return _convertirUsuario(usuario);
+    });
   }
 
   @override

@@ -1,4 +1,3 @@
-
 import '../../../validacion/validadores_tarea.dart';
 import '../../tareas/domain/tarea.dart';
 import '../../tareas/domain/task_repository.dart';
@@ -17,9 +16,7 @@ DateTime? leerFecha(String texto) {
 
   final fecha = DateTime(anio, mes, dia);
 
-  if (fecha.day != dia ||
-      fecha.month != mes ||
-      fecha.year != anio) {
+  if (fecha.day != dia || fecha.month != mes || fecha.year != anio) {
     return null;
   }
 
@@ -43,22 +40,19 @@ class ListarTareas implements HerramientaAgente {
   String get nombre => 'listar_tareas';
 
   @override
-  String get descripcion =>
-      'Consulta las tareas del usuario y su estado.';
+  String get descripcion => 'Consulta las tareas del usuario y su estado.';
 
   @override
   Map<String, Parametro> get parametros => const {
-        'solo_pendientes': Parametro(
-          tipo: 'boolean',
-          descripcion: 'Mostrar únicamente tareas pendientes.',
-          requerido: false,
-        ),
-      };
+    'solo_pendientes': Parametro(
+      tipo: 'boolean',
+      descripcion: 'Mostrar únicamente tareas pendientes.',
+      requerido: false,
+    ),
+  };
 
   @override
-  Future<AccionPreparada> preparar(
-    Map<String, Object?> argumentos,
-  ) async {
+  Future<AccionPreparada> preparar(Map<String, Object?> argumentos) async {
     final valor = argumentos['solo_pendientes'];
 
     if (valor != null && valor is! bool) {
@@ -81,20 +75,20 @@ class ListarTareas implements HerramientaAgente {
           return 'No hay tareas que coincidan con la consulta.';
         }
 
-        return resultado.map((tarea) {
-          final estado = tarea.completada
-              ? 'Completada'
-              : 'Pendiente';
+        return resultado
+            .map((tarea) {
+              final estado = tarea.completada ? 'Completada' : 'Pendiente';
 
-          final fecha = tarea.fechaLimite == null
-              ? 'Sin fecha'
-              : formatearFecha(tarea.fechaLimite!);
+              final fecha = tarea.fechaLimite == null
+                  ? 'Sin fecha'
+                  : formatearFecha(tarea.fechaLimite!);
 
-          return '${tarea.titulo} | '
-              'Estado: $estado | '
-              'Fecha límite: $fecha | '
-              'Descripción: ${tarea.descripcion}';
-        }).join('\n');
+              return '${tarea.titulo} | '
+                  'Estado: $estado | '
+                  'Fecha límite: $fecha | '
+                  'Descripción: ${tarea.descripcion}';
+            })
+            .join('\n');
       },
     );
   }
@@ -109,78 +103,59 @@ class CrearTarea implements HerramientaAgente {
   String get nombre => 'crear_tarea';
 
   @override
-  String get descripcion =>
-      'Prepara la creación de una tarea nueva.';
+  String get descripcion => 'Prepara la creación de una tarea nueva.';
 
   @override
   Map<String, Parametro> get parametros => const {
-        'titulo': Parametro(
-          tipo: 'string',
-          descripcion: 'Título de la tarea.',
-        ),
-        'descripcion': Parametro(
-          tipo: 'string',
-          descripcion: 'Descripción de la tarea.',
-          requerido: false,
-        ),
-        'fecha_limite': Parametro(
-          tipo: 'string',
-          descripcion: 'Fecha límite en formato dd/mm/aaaa.',
-        ),
-      };
+    'titulo': Parametro(tipo: 'string', descripcion: 'Título de la tarea.'),
+    'descripcion': Parametro(
+      tipo: 'string',
+      descripcion: 'Descripción de la tarea.',
+      requerido: false,
+    ),
+    'fecha_limite': Parametro(
+      tipo: 'string',
+      descripcion: 'Fecha límite en formato dd/mm/aaaa.',
+    ),
+  };
 
   @override
-  Future<AccionPreparada> preparar(
-    Map<String, Object?> argumentos,
-  ) async {
+  Future<AccionPreparada> preparar(Map<String, Object?> argumentos) async {
     final tituloValor = argumentos['titulo'];
     final descripcionValor = argumentos['descripcion'];
     final fechaValor = argumentos['fecha_limite'];
 
     if (tituloValor is! String) {
-      return const AccionInvalida(
-        'Debes proporcionar un título válido.',
-      );
+      return const AccionInvalida('Debes proporcionar un título válido.');
     }
 
-    if (descripcionValor != null &&
-        descripcionValor is! String) {
-      return const AccionInvalida(
-        'La descripción debe ser texto.',
-      );
+    if (descripcionValor != null && descripcionValor is! String) {
+      return const AccionInvalida('La descripción debe ser texto.');
     }
 
     final titulo = tituloValor.trim();
 
-    final descripcion =
-        (descripcionValor as String? ?? '').trim();
+    final descripcion = (descripcionValor as String? ?? '').trim();
 
-    final errorTitulo =
-        ValidadoresTarea.validarTitulo(titulo);
+    final errorTitulo = ValidadoresTarea.validarTitulo(titulo);
 
     if (errorTitulo != null) {
       return AccionInvalida(errorTitulo);
     }
 
-    final errorDescripcion =
-        ValidadoresTarea.validarDescripcion(descripcion);
+    final errorDescripcion = ValidadoresTarea.validarDescripcion(descripcion);
 
     if (errorDescripcion != null) {
       return AccionInvalida(errorDescripcion);
     }
 
-    final fecha = fechaValor is String
-        ? leerFecha(fechaValor)
-        : null;
+    final fecha = fechaValor is String ? leerFecha(fechaValor) : null;
 
     if (fecha == null) {
-      return const AccionInvalida(
-        'La fecha no es válida. Usa dd/mm/aaaa.',
-      );
+      return const AccionInvalida('La fecha no es válida. Usa dd/mm/aaaa.');
     }
 
-    final errorFecha =
-        ValidadoresTarea.validarFecha(fecha);
+    final errorFecha = ValidadoresTarea.validarFecha(fecha);
 
     if (errorFecha != null) {
       return AccionInvalida(errorFecha);
@@ -194,7 +169,8 @@ class CrearTarea implements HerramientaAgente {
     );
 
     return AccionModificacion(
-      descripcion: 'Crear la tarea «${tarea.titulo}» '
+      descripcion:
+          'Crear la tarea «${tarea.titulo}» '
           'con fecha límite ${formatearFecha(fecha)}. '
           'Descripción: ${tarea.descripcion}',
       ejecutar: () async {
@@ -212,25 +188,20 @@ class CrearTarea implements HerramientaAgente {
   }
 }
 
-List<Tarea> _buscarCoincidencias(
-  List<Tarea> tareas,
-  String titulo,
-) {
+List<Tarea> _buscarCoincidencias(List<Tarea> tareas, String titulo) {
   final consulta = titulo.trim().toLowerCase();
 
-  final exactas = tareas.where(
-    (tarea) =>
-        tarea.titulo.trim().toLowerCase() == consulta,
-  ).toList();
+  final exactas = tareas
+      .where((tarea) => tarea.titulo.trim().toLowerCase() == consulta)
+      .toList();
 
   if (exactas.isNotEmpty) {
     return exactas;
   }
 
-  return tareas.where(
-    (tarea) =>
-        tarea.titulo.toLowerCase().contains(consulta),
-  ).toList();
+  return tareas
+      .where((tarea) => tarea.titulo.toLowerCase().contains(consulta))
+      .toList();
 }
 
 class CompletarTarea implements HerramientaAgente {
@@ -247,39 +218,30 @@ class CompletarTarea implements HerramientaAgente {
 
   @override
   Map<String, Parametro> get parametros => const {
-        'titulo': Parametro(
-          tipo: 'string',
-          descripcion: 'Título de la tarea que se completará.',
-        ),
-      };
+    'titulo': Parametro(
+      tipo: 'string',
+      descripcion: 'Título de la tarea que se completará.',
+    ),
+  };
 
   @override
-  Future<AccionPreparada> preparar(
-    Map<String, Object?> argumentos,
-  ) async {
+  Future<AccionPreparada> preparar(Map<String, Object?> argumentos) async {
     final titulo = argumentos['titulo'];
 
     if (titulo is! String || titulo.trim().isEmpty) {
-      return const AccionInvalida(
-        'Debes indicar el título de la tarea.',
-      );
+      return const AccionInvalida('Debes indicar el título de la tarea.');
     }
 
     final tareas = await _repo.observarTareas().first;
 
-    final coincidencias =
-        _buscarCoincidencias(tareas, titulo);
+    final coincidencias = _buscarCoincidencias(tareas, titulo);
 
     if (coincidencias.isEmpty) {
-      return const AccionInvalida(
-        'No se encontró la tarea indicada.',
-      );
+      return const AccionInvalida('No se encontró la tarea indicada.');
     }
 
     if (coincidencias.length > 1) {
-      final nombres = coincidencias
-          .map((tarea) => tarea.titulo)
-          .join(', ');
+      final nombres = coincidencias.map((tarea) => tarea.titulo).join(', ');
 
       return AccionInvalida(
         'Hay varias coincidencias: $nombres. '
@@ -290,17 +252,13 @@ class CompletarTarea implements HerramientaAgente {
     final tarea = coincidencias.single;
 
     if (tarea.completada) {
-      return const AccionInvalida(
-        'La tarea ya está completada.',
-      );
+      return const AccionInvalida('La tarea ya está completada.');
     }
 
     return AccionModificacion(
       descripcion: 'Completar la tarea «${tarea.titulo}».',
       ejecutar: () async {
-        await _repo.actualizar(
-          tarea.copyWith(completada: true),
-        );
+        await _repo.actualizar(tarea.copyWith(completada: true));
 
         return 'Tarea «${tarea.titulo}» completada correctamente.';
       },
@@ -317,44 +275,34 @@ class EliminarTarea implements HerramientaAgente {
   String get nombre => 'eliminar_tarea';
 
   @override
-  String get descripcion =>
-      'Prepara la eliminación de una única tarea.';
+  String get descripcion => 'Prepara la eliminación de una única tarea.';
 
   @override
   Map<String, Parametro> get parametros => const {
-        'titulo': Parametro(
-          tipo: 'string',
-          descripcion: 'Título de la tarea que se eliminará.',
-        ),
-      };
+    'titulo': Parametro(
+      tipo: 'string',
+      descripcion: 'Título de la tarea que se eliminará.',
+    ),
+  };
 
   @override
-  Future<AccionPreparada> preparar(
-    Map<String, Object?> argumentos,
-  ) async {
+  Future<AccionPreparada> preparar(Map<String, Object?> argumentos) async {
     final titulo = argumentos['titulo'];
 
     if (titulo is! String || titulo.trim().isEmpty) {
-      return const AccionInvalida(
-        'Debes indicar el título de la tarea.',
-      );
+      return const AccionInvalida('Debes indicar el título de la tarea.');
     }
 
     final tareas = await _repo.observarTareas().first;
 
-    final coincidencias =
-        _buscarCoincidencias(tareas, titulo);
+    final coincidencias = _buscarCoincidencias(tareas, titulo);
 
     if (coincidencias.isEmpty) {
-      return const AccionInvalida(
-        'No se encontró la tarea indicada.',
-      );
+      return const AccionInvalida('No se encontró la tarea indicada.');
     }
 
     if (coincidencias.length > 1) {
-      final nombres = coincidencias
-          .map((tarea) => tarea.titulo)
-          .join(', ');
+      final nombres = coincidencias.map((tarea) => tarea.titulo).join(', ');
 
       return AccionInvalida(
         'Hay varias coincidencias: $nombres. '

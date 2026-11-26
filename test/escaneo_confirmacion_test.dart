@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -31,124 +30,80 @@ class RepositorioTareasFalso implements TaskRepository {
 }
 
 void main() {
-  testWidgets(
-    'El escaneo requiere confirmacion antes de guardar',
-    (tester) async {
-      final repositorio = RepositorioTareasFalso();
+  testWidgets('El escaneo requiere confirmacion antes de guardar', (
+    tester,
+  ) async {
+    final repositorio = RepositorioTareasFalso();
 
-      final fecha = DateTime.now().add(
-        const Duration(days: 5),
-      );
+    final fecha = DateTime.now().add(const Duration(days: 5));
 
-      final propuesta = PropuestaTarea(
-        titulo: 'Tarea de Matematica',
-        descripcion: 'Resolver ejercicios del capitulo 5.',
-        fechaLimite: fecha,
-      );
+    final propuesta = PropuestaTarea(
+      titulo: 'Tarea de Matematica',
+      descripcion: 'Resolver ejercicios del capitulo 5.',
+      fechaLimite: fecha,
+    );
 
-      final router = GoRouter(
-        initialLocation: '/tareas/nueva',
-        routes: [
-          GoRoute(
-            path: '/tareas/nueva',
-            builder: (context, state) {
-              return NuevaTareaScreen(
-                inicial: propuesta,
-              );
-            },
-          ),
-          GoRoute(
-            path: '/tareas',
-            builder: (context, state) {
-              return const Scaffold(
-                body: Center(
-                  child: Text('Mis tareas'),
-                ),
-              );
-            },
-          ),
-        ],
-      );
-
-      addTearDown(router.dispose);
-
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            firestoreTaskRepositoryProvider.overrideWith(
-              (ref) => repositorio,
-            ),
-          ],
-          child: MaterialApp.router(
-            routerConfig: router,
-          ),
+    final router = GoRouter(
+      initialLocation: '/tareas/nueva',
+      routes: [
+        GoRoute(
+          path: '/tareas/nueva',
+          builder: (context, state) {
+            return NuevaTareaScreen(inicial: propuesta);
+          },
         ),
-      );
+        GoRoute(
+          path: '/tareas',
+          builder: (context, state) {
+            return const Scaffold(body: Center(child: Text('Mis tareas')));
+          },
+        ),
+      ],
+    );
 
-      await tester.pumpAndSettle();
+    addTearDown(router.dispose);
 
-      // Comprueba que el formulario recibe los datos.
-      expect(
-        find.text('Tarea de Matematica'),
-        findsOneWidget,
-      );
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          firestoreTaskRepositoryProvider.overrideWith((ref) => repositorio),
+        ],
+        child: MaterialApp.router(routerConfig: router),
+      ),
+    );
 
-      expect(
-        find.text('Resolver ejercicios del capitulo 5.'),
-        findsOneWidget,
-      );
+    await tester.pumpAndSettle();
 
-      expect(
-        find.text('Datos detectados en la foto'),
-        findsOneWidget,
-      );
+    // Comprueba que el formulario recibe los datos.
+    expect(find.text('Tarea de Matematica'), findsOneWidget);
 
-      // Abrir el formulario no debe guardar nada.
-      expect(repositorio.tareasGuardadas, isEmpty);
+    expect(find.text('Resolver ejercicios del capitulo 5.'), findsOneWidget);
 
-      // El guardado requiere una accion del usuario.
-      await tester.ensureVisible(
-        find.text('Guardar tarea'),
-      );
+    expect(find.text('Datos detectados en la foto'), findsOneWidget);
 
-      await tester.tap(
-        find.text('Guardar tarea'),
-      );
+    // Abrir el formulario no debe guardar nada.
+    expect(repositorio.tareasGuardadas, isEmpty);
 
-      await tester.pumpAndSettle();
+    // El guardado requiere una accion del usuario.
+    await tester.ensureVisible(find.text('Guardar tarea'));
 
-      // Se guarda exactamente una tarea.
-      expect(
-        repositorio.tareasGuardadas.length,
-        1,
-      );
+    await tester.tap(find.text('Guardar tarea'));
 
-      final tarea = repositorio.tareasGuardadas.single;
+    await tester.pumpAndSettle();
 
-      expect(
-        tarea.titulo,
-        'Tarea de Matematica',
-      );
+    // Se guarda exactamente una tarea.
+    expect(repositorio.tareasGuardadas.length, 1);
 
-      expect(
-        tarea.descripcion,
-        'Resolver ejercicios del capitulo 5.',
-      );
+    final tarea = repositorio.tareasGuardadas.single;
 
-      expect(
-        tarea.fechaLimite?.year,
-        fecha.year,
-      );
+    expect(tarea.titulo, 'Tarea de Matematica');
 
-      expect(
-        tarea.fechaLimite?.month,
-        fecha.month,
-      );
+    expect(tarea.descripcion, 'Resolver ejercicios del capitulo 5.');
 
-      expect(
-        tarea.fechaLimite?.day,
-        fecha.day,
-      );
-    },
-  );
+    expect(tarea.fechaLimite?.year, fecha.year);
+
+    expect(tarea.fechaLimite?.month, fecha.month);
+
+    expect(tarea.fechaLimite?.day, fecha.day);
+  });
 }

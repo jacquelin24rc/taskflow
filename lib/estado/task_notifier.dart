@@ -1,4 +1,3 @@
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../modelos/tarea.dart';
@@ -13,36 +12,25 @@ class TaskNotifier extends Notifier<TaskState> {
   }
 
   Future<void> cargarTareas() async {
-    final repositorio = await ref.read(
-      taskRepositoryProvider.future,
-    );
+    final repositorio = await ref.read(taskRepositoryProvider.future);
 
     final tareas = await repositorio.obtenerTareas();
 
-    state = state.copyWith(
-      tareas: tareas.map(TareaMapper.aEstado).toList(),
-    );
+    state = state.copyWith(tareas: tareas.map(TareaMapper.aEstado).toList());
   }
 
   Future<void> agregarTarea(Tarea nuevaTarea) async {
-    final repositorio = await ref.read(
-      taskRepositoryProvider.future,
-    );
+    final repositorio = await ref.read(taskRepositoryProvider.future);
 
     final tareaGuardada = await repositorio.agregar(nuevaTarea);
 
     state = state.copyWith(
-      tareas: [
-        ...state.tareas,
-        TareaMapper.aEstado(tareaGuardada),
-      ],
+      tareas: [...state.tareas, TareaMapper.aEstado(tareaGuardada)],
     );
   }
 
   Future<void> alternarCompletada(int id) async {
-    final repositorio = await ref.read(
-      taskRepositoryProvider.future,
-    );
+    final repositorio = await ref.read(taskRepositoryProvider.future);
 
     final tareas = await repositorio.obtenerTareas();
 
@@ -59,9 +47,7 @@ class TaskNotifier extends Notifier<TaskState> {
   }
 
   Future<void> eliminarTarea(int id) async {
-    final repositorio = await ref.read(
-      taskRepositoryProvider.future,
-    );
+    final repositorio = await ref.read(taskRepositoryProvider.future);
 
     await repositorio.eliminar(id);
 
@@ -69,19 +55,15 @@ class TaskNotifier extends Notifier<TaskState> {
   }
 
   void cambiarFiltro(String nuevoFiltro) {
-    state = state.copyWith(
-      filtroActivo: nuevoFiltro,
-    );
+    state = state.copyWith(filtroActivo: nuevoFiltro);
   }
 }
 
-final taskProvider =
-    NotifierProvider<TaskNotifier, TaskState>(
+final taskProvider = NotifierProvider<TaskNotifier, TaskState>(
   TaskNotifier.new,
 );
 
-final taskByIdProvider =
-    Provider.family<TareaEstado?, int>((ref, id) {
+final taskByIdProvider = Provider.family<TareaEstado?, int>((ref, id) {
   final taskState = ref.watch(taskProvider);
 
   for (final tarea in taskState.tareas) {

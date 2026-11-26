@@ -1,4 +1,3 @@
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:taskflow/features/escaneo/domain/propuesta_tarea.dart';
 
@@ -13,10 +12,7 @@ Resolver los ejercicios del capitulo 5.
       final propuesta = PropuestaTarea.desdeTexto(texto);
 
       expect(propuesta.titulo, 'Tarea de Matematica');
-      expect(
-        propuesta.descripcion,
-        'Resolver los ejercicios del capitulo 5.',
-      );
+      expect(propuesta.descripcion, 'Resolver los ejercicios del capitulo 5.');
       expect(propuesta.fechaLimite, isNull);
     });
 
@@ -50,9 +46,7 @@ Fecha limite: 31/02/2026
     test('limita el titulo a 60 caracteres', () {
       final tituloLargo = 'A' * 80;
 
-      final propuesta = PropuestaTarea.desdeTexto(
-        tituloLargo,
-      );
+      final propuesta = PropuestaTarea.desdeTexto(tituloLargo);
 
       expect(propuesta.titulo.length, 60);
     });

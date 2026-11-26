@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,8 +12,7 @@ class TareasRemotasScreen extends ConsumerStatefulWidget {
       _TareasRemotasScreenState();
 }
 
-class _TareasRemotasScreenState
-    extends ConsumerState<TareasRemotasScreen> {
+class _TareasRemotasScreenState extends ConsumerState<TareasRemotasScreen> {
   final _tituloController = TextEditingController();
   bool _enviando = false;
 
@@ -30,9 +28,7 @@ class _TareasRemotasScreenState
     if (titulo.length < 3 || titulo.length > 60) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            'El título debe tener entre 3 y 60 caracteres.',
-          ),
+          content: Text('El título debe tener entre 3 y 60 caracteres.'),
         ),
       );
       return;
@@ -40,9 +36,7 @@ class _TareasRemotasScreenState
 
     final nuevaTarea = Tarea(
       titulo: titulo,
-      fechaLimite: DateTime.now().add(
-        const Duration(days: 7),
-      ),
+      fechaLimite: DateTime.now().add(const Duration(days: 7)),
     );
 
     setState(() {
@@ -57,17 +51,13 @@ class _TareasRemotasScreenState
       _tituloController.clear();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Tarea enviada correctamente.'),
-        ),
+        const SnackBar(content: Text('Tarea enviada correctamente.')),
       );
     } catch (error) {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('No se pudo enviar la tarea: $error'),
-        ),
+        SnackBar(content: Text('No se pudo enviar la tarea: $error')),
       );
     } finally {
       if (mounted) {
@@ -118,9 +108,7 @@ class _TareasRemotasScreenState
                     onPressed: _enviando ? null : _crearTarea,
                     icon: const Icon(Icons.cloud_upload),
                     label: Text(
-                      _enviando
-                          ? 'Enviando...'
-                          : 'Enviar tarea a la API',
+                      _enviando ? 'Enviando...' : 'Enviar tarea a la API',
                     ),
                   ),
                 ),
@@ -129,9 +117,7 @@ class _TareasRemotasScreenState
           ),
           Expanded(
             child: tareasAsync.when(
-              loading: () => const Center(
-                child: CircularProgressIndicator(),
-              ),
+              loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, stackTrace) => Center(
                 child: Padding(
                   padding: const EdgeInsets.all(24),
@@ -149,16 +135,11 @@ class _TareasRemotasScreenState
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        '$error',
-                        textAlign: TextAlign.center,
-                      ),
+                      Text('$error', textAlign: TextAlign.center),
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: () {
-                          ref
-                              .read(tareasRemotasProvider.notifier)
-                              .recargar();
+                          ref.read(tareasRemotasProvider.notifier).recargar();
                         },
                         child: const Text('Reintentar'),
                       ),
@@ -175,9 +156,7 @@ class _TareasRemotasScreenState
 
                 return RefreshIndicator(
                   onRefresh: () {
-                    return ref
-                        .read(tareasRemotasProvider.notifier)
-                        .recargar();
+                    return ref.read(tareasRemotasProvider.notifier).recargar();
                   },
                   child: ListView.builder(
                     itemCount: tareas.length,
@@ -197,13 +176,9 @@ class _TareasRemotasScreenState
                             color: const Color(0xFF453A7A),
                           ),
                           title: Text(tarea.titulo),
-                          subtitle: Text(
-                            'ID: ${tarea.id ?? "Sin ID"}',
-                          ),
+                          subtitle: Text('ID: ${tarea.id ?? "Sin ID"}'),
                           trailing: Text(
-                            tarea.completada
-                                ? 'Completada'
-                                : 'Pendiente',
+                            tarea.completada ? 'Completada' : 'Pendiente',
                           ),
                         ),
                       );

@@ -24,17 +24,13 @@ class MyApp extends StatelessWidget {
 
           if (tareaId is int) {
             return MaterialPageRoute(
-              builder: (context) => DetalleTareaScreen(
-                tareaId: tareaId,
-              ),
+              builder: (context) => DetalleTareaScreen(tareaId: tareaId),
             );
           }
 
           return MaterialPageRoute(
             builder: (context) => Scaffold(
-              appBar: AppBar(
-                title: const Text('Detalle de tarea'),
-              ),
+              appBar: AppBar(title: const Text('Detalle de tarea')),
               body: const Center(
                 child: Text('No se recibió una tarea válida.'),
               ),

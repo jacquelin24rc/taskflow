@@ -1,4 +1,3 @@
-
 class Tarea {
   int? id;
   String titulo;
@@ -62,9 +61,7 @@ class Tarea {
       id: map['id'] as int?,
       titulo: map['titulo'] as String,
       descripcion: map['descripcion'] as String,
-      fechaLimite: DateTime.parse(
-        map['fecha_limite'] as String,
-      ),
+      fechaLimite: DateTime.parse(map['fecha_limite'] as String),
       categoria: map['categoria'] as String,
       prioridad: map['prioridad'] as int,
       completada: map['completada'] == 1,
@@ -87,19 +84,13 @@ class Tarea {
     return Tarea(
       id: id is int ? id : null,
       titulo: titulo.trim(),
-      fechaLimite: DateTime.now().add(
-        const Duration(days: 7),
-      ),
+      fechaLimite: DateTime.now().add(const Duration(days: 7)),
       completada: json['completed'] == true,
     );
   }
 
   // Convertir una tarea para enviarla a la API REST.
   Map<String, dynamic> toJson() {
-    return {
-      'title': titulo,
-      'completed': completada,
-      'userId': 1,
-    };
+    return {'title': titulo, 'completed': completada, 'userId': 1};
   }
 }

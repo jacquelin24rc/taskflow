@@ -1,4 +1,3 @@
-
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -10,10 +9,7 @@ class TareasDb {
   final Database _db;
 
   static Future<TareasDb> abrir() async {
-    final ruta = join(
-      await getDatabasesPath(),
-      'taskflow.db',
-    );
+    final ruta = join(await getDatabasesPath(), 'taskflow.db');
 
     final db = await openDatabase(
       ruta,
@@ -39,10 +35,7 @@ class TareasDb {
 
   // READ: consultar todas las tareas.
   Future<List<Tarea>> todas() async {
-    final filas = await _db.query(
-      'tareas',
-      orderBy: 'fecha_limite ASC',
-    );
+    final filas = await _db.query('tareas', orderBy: 'fecha_limite ASC');
 
     return filas.map(Tarea.fromMap).toList();
   }
@@ -52,10 +45,7 @@ class TareasDb {
     final datos = tarea.toMap();
     datos.remove('id');
 
-    tarea.id = await _db.insert(
-      'tareas',
-      datos,
-    );
+    tarea.id = await _db.insert('tareas', datos);
 
     return tarea;
   }
@@ -72,11 +62,7 @@ class TareasDb {
 
   // DELETE: eliminar una tarea.
   Future<void> eliminar(int id) async {
-    await _db.delete(
-      'tareas',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    await _db.delete('tareas', where: 'id = ?', whereArgs: [id]);
   }
 
   // Guardar varias tareas en una sola operación.

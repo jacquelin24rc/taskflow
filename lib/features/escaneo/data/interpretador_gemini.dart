@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:convert';
 
@@ -35,8 +34,9 @@ class InterpretadorGemini {
         '${hoy.month.toString().padLeft(2, '0')}-'
         '${hoy.day.toString().padLeft(2, '0')}';
 
-    final respuesta = await modelo.generateContent([
-      Content.text('''
+    final respuesta = await modelo
+        .generateContent([
+          Content.text('''
 Interpreta el siguiente texto reconocido por OCR como una tarea.
 
 Devuelve únicamente los campos solicitados en el esquema JSON.
@@ -55,7 +55,8 @@ Reglas:
 Texto OCR:
 $textoReconocido
 '''),
-    ]).timeout(const Duration(seconds: 45));
+        ])
+        .timeout(const Duration(seconds: 45));
 
     final contenido = respuesta.text;
 
@@ -73,9 +74,7 @@ $textoReconocido
     final descripcion = datos['descripcion'];
     final fechaTexto = datos['fechaLimite'];
 
-    if (titulo is! String ||
-        descripcion is! String ||
-        fechaTexto is! String) {
+    if (titulo is! String || descripcion is! String || fechaTexto is! String) {
       throw const FormatException('Los campos de Gemini no son válidos.');
     }
 
@@ -101,12 +100,9 @@ $textoReconocido
       fecha = DateTime.tryParse(valor);
 
       if (fecha == null ||
-          fecha.year.toString().padLeft(4, '0') !=
-              valor.substring(0, 4) ||
-          fecha.month.toString().padLeft(2, '0') !=
-              valor.substring(5, 7) ||
-          fecha.day.toString().padLeft(2, '0') !=
-              valor.substring(8, 10)) {
+          fecha.year.toString().padLeft(4, '0') != valor.substring(0, 4) ||
+          fecha.month.toString().padLeft(2, '0') != valor.substring(5, 7) ||
+          fecha.day.toString().padLeft(2, '0') != valor.substring(8, 10)) {
         throw const FormatException('Gemini devolvió una fecha inválida.');
       }
 

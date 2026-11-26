@@ -48,9 +48,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     } on AuthException catch (error) {
       _mostrarError(error.mensaje);
     } catch (_) {
-      _mostrarError(
-        'No se pudo iniciar sesión. Inténtalo nuevamente.',
-      );
+      _mostrarError('No se pudo iniciar sesión. Inténtalo nuevamente.');
     } finally {
       if (mounted) {
         setState(() {
@@ -63,44 +61,32 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void _mostrarError(String mensaje) {
     if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(mensaje)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(mensaje)));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('TaskFlow'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('TaskFlow'), centerTitle: true),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: 400,
-            ),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: Form(
               key: _formKey,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Icon(
-                    Icons.task_alt,
-                    size: 72,
-                    color: Colors.indigo,
-                  ),
+                  const Icon(Icons.task_alt, size: 72, color: Colors.indigo),
                   const SizedBox(height: 16),
                   const Text(
                     'Bienvenido a TaskFlow',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   const Text(
@@ -171,21 +157,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ? const SizedBox(
                               height: 20,
                               width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                              ),
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Text('Iniciar sesión'),
                     ),
                   ),
                   const SizedBox(height: 16),
                   TextButton(
-                    onPressed: _cargando
-                        ? null
-                        : () => context.go('/registro'),
-                    child: const Text(
-                      '¿No tienes cuenta? Regístrate',
-                    ),
+                    onPressed: _cargando ? null : () => context.go('/registro'),
+                    child: const Text('¿No tienes cuenta? Regístrate'),
                   ),
                 ],
               ),

@@ -1,4 +1,3 @@
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
@@ -22,8 +21,8 @@ final tareasApiProvider = Provider<TareasApi>((ref) {
 // Provider que administra las tareas remotas.
 final tareasRemotasProvider =
     AsyncNotifierProvider<TareasRemotasNotifier, List<Tarea>>(
-  TareasRemotasNotifier.new,
-);
+      TareasRemotasNotifier.new,
+    );
 
 class TareasRemotasNotifier extends AsyncNotifier<List<Tarea>> {
   // Carga las tareas cuando se abre la pantalla.
@@ -47,9 +46,6 @@ class TareasRemotasNotifier extends AsyncNotifier<List<Tarea>> {
 
     final tareasActuales = state.asData?.value ?? <Tarea>[];
 
-    state = AsyncData([
-      creada,
-      ...tareasActuales,
-    ]);
+    state = AsyncData([creada, ...tareasActuales]);
   }
 }

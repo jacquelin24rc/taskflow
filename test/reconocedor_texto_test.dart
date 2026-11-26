@@ -1,4 +1,3 @@
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:taskflow/features/escaneo/domain/reconocedor_texto.dart';
 import 'package:taskflow/features/escaneo/domain/propuesta_tarea.dart';
@@ -26,9 +25,7 @@ void main() {
     test('reconoce texto sin utilizar ML Kit', () async {
       final reconocedor = ReconocedorTextoFalso();
 
-      final texto = await reconocedor.reconocer(
-        'imagen_prueba.jpg',
-      );
+      final texto = await reconocedor.reconocer('imagen_prueba.jpg');
 
       expect(texto, contains('Tarea de Ciencias'));
       expect(texto, contains('Investigar el sistema solar.'));
@@ -37,17 +34,12 @@ void main() {
     test('genera una propuesta a partir del texto', () async {
       final reconocedor = ReconocedorTextoFalso();
 
-      final texto = await reconocedor.reconocer(
-        'imagen_prueba.jpg',
-      );
+      final texto = await reconocedor.reconocer('imagen_prueba.jpg');
 
       final propuesta = PropuestaTarea.desdeTexto(texto);
 
       expect(propuesta.titulo, 'Tarea de Ciencias');
-      expect(
-        propuesta.descripcion,
-        contains('Investigar el sistema solar.'),
-      );
+      expect(propuesta.descripcion, contains('Investigar el sistema solar.'));
       expect(propuesta.fechaLimite?.day, 26);
       expect(propuesta.fechaLimite?.month, 11);
       expect(propuesta.fechaLimite?.year, 2026);

@@ -2,7 +2,7 @@ import 'package:taskflow/modelos/tarea.dart';
 import 'package:taskflow/modelos/habito_recurrente.dart';
 
 void main() {
-  List<Tarea> tareas = [
+  final List<Tarea> tareas = [
     Tarea(
       titulo: 'Hacer tarea de Flutter',
       descripcion: 'Completar actividad de la semana 4',

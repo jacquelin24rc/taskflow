@@ -41,9 +41,7 @@ class TarjetaTarea extends StatelessWidget {
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
               icon: Icon(
-                completada
-                    ? Icons.check_box
-                    : Icons.check_box_outline_blank,
+                completada ? Icons.check_box : Icons.check_box_outline_blank,
                 size: 22,
                 color: const Color(0xFF453A7A),
               ),
@@ -67,20 +65,14 @@ class TarjetaTarea extends StatelessWidget {
                   const SizedBox(height: 5),
                   Text(
                     meta,
-                    style: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 11,
-                    ),
+                    style: const TextStyle(color: Colors.grey, fontSize: 11),
                   ),
                 ],
               ),
             ),
             const SizedBox(width: 8),
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 4,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: const Color(0xFFF2F0F8),
                 borderRadius: BorderRadius.circular(10),

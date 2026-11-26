@@ -1,4 +1,3 @@
-
 sealed class FaseAgente {
   const FaseAgente();
 }

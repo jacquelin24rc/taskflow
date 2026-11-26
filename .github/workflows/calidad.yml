@@ -1,0 +1,47 @@
+
+name: Calidad de TaskFlow
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  calidad:
+    name: Formato, análisis y pruebas
+    runs-on: windows-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.9'
+          channel: stable
+          cache: true
+
+      - name: Verificar versión de Flutter
+        run: flutter --version
+
+      - name: Instalar dependencias
+        run: flutter pub get
+
+      - name: Verificar formato
+        run: dart format --output=none --set-exit-if-changed lib test integration_test
+
+      - name: Análisis estático estricto
+        run: flutter analyze --fatal-infos --fatal-warnings
+
+      - name: Ejecutar pruebas y generar cobertura
+        run: flutter test --coverage
+
+      - name: Guardar informe de cobertura
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura-taskflow
+          path: coverage/lcov.info

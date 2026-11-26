@@ -21,18 +21,14 @@ class BottomItem extends StatelessWidget {
         Icon(
           icon,
           size: 20,
-          color: active
-              ? const Color(0xFF453A7A)
-              : Colors.grey,
+          color: active ? const Color(0xFF453A7A) : Colors.grey,
         ),
         const SizedBox(height: 3),
         Text(
           label,
           style: TextStyle(
             fontSize: 10,
-            color: active
-                ? const Color(0xFF453A7A)
-                : Colors.grey,
+            color: active ? const Color(0xFF453A7A) : Colors.grey,
           ),
         ),
       ],

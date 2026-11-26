@@ -1,14 +1,10 @@
-
 import '../datos/tareas_api.dart';
 import '../datos/tareas_db.dart';
 import '../modelos/tarea.dart';
 import 'task_repository.dart';
 
 class AppTaskRepository implements TaskRepository {
-  AppTaskRepository(
-    this._db, {
-    this.api,
-  });
+  AppTaskRepository(this._db, {this.api});
 
   final TareasDb _db;
   final TareasApi? api;

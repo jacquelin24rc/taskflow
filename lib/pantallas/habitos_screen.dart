@@ -6,9 +6,7 @@ class HabitosScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Hábitos'),
-      ),
+      appBar: AppBar(title: const Text('Hábitos')),
       body: const Padding(
         padding: EdgeInsets.all(20),
         child: Column(
@@ -16,10 +14,7 @@ class HabitosScreen extends StatelessWidget {
           children: [
             Text(
               'Mis hábitos',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 16),
             ListTile(

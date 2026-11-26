@@ -1,4 +1,3 @@
-
 import '../../../validacion/validadores_tarea.dart';
 
 class PropuestaTarea {
@@ -12,9 +11,7 @@ class PropuestaTarea {
   final String descripcion;
   final DateTime? fechaLimite;
 
-  static final _fecha = RegExp(
-    r'\b(\d{1,2})[/-](\d{1,2})[/-](\d{4})\b',
-  );
+  static final _fecha = RegExp(r'\b(\d{1,2})[/-](\d{1,2})[/-](\d{4})\b');
 
   factory PropuestaTarea.desdeTexto(String texto) {
     final lineas = texto
@@ -28,10 +25,7 @@ class PropuestaTarea {
     }
 
     return PropuestaTarea(
-      titulo: _recortar(
-        lineas.first,
-        ValidadoresTarea.tituloMax,
-      ),
+      titulo: _recortar(lineas.first, ValidadoresTarea.tituloMax),
       descripcion: _recortar(
         lineas.skip(1).join(' '),
         ValidadoresTarea.descripcionMax,
@@ -41,9 +35,7 @@ class PropuestaTarea {
   }
 
   static String _recortar(String texto, int maximo) {
-    return texto.length <= maximo
-        ? texto
-        : texto.substring(0, maximo);
+    return texto.length <= maximo ? texto : texto.substring(0, maximo);
   }
 
   static DateTime? _buscarFecha(String texto) {
@@ -59,9 +51,7 @@ class PropuestaTarea {
 
     final fecha = DateTime(anio, mes, dia);
 
-    if (fecha.day != dia ||
-        fecha.month != mes ||
-        fecha.year != anio) {
+    if (fecha.day != dia || fecha.month != mes || fecha.year != anio) {
       return null;
     }
 

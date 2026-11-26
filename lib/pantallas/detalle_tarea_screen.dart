@@ -6,34 +6,21 @@ import '../estado/task_notifier.dart';
 class DetalleTareaScreen extends ConsumerWidget {
   final int tareaId;
 
-  const DetalleTareaScreen({
-    super.key,
-    required this.tareaId,
-  });
+  const DetalleTareaScreen({super.key, required this.tareaId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tarea = ref.watch(
-      taskByIdProvider(tareaId),
-    );
+    final tarea = ref.watch(taskByIdProvider(tareaId));
 
     if (tarea == null) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Detalle de tarea'),
-        ),
-        body: const Center(
-          child: Text(
-            'La tarea no existe o fue eliminada.',
-          ),
-        ),
+        appBar: AppBar(title: const Text('Detalle de tarea')),
+        body: const Center(child: Text('La tarea no existe o fue eliminada.')),
       );
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Detalle de tarea'),
-      ),
+      appBar: AppBar(title: const Text('Detalle de tarea')),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -41,10 +28,7 @@ class DetalleTareaScreen extends ConsumerWidget {
           children: [
             Text(
               tarea.titulo,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             Text('Meta: ${tarea.meta}'),
@@ -53,9 +37,7 @@ class DetalleTareaScreen extends ConsumerWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                ref
-                    .read(taskProvider.notifier)
-                    .alternarCompletada(tarea.id);
+                ref.read(taskProvider.notifier).alternarCompletada(tarea.id);
               },
               child: Text(
                 tarea.completada

@@ -34,15 +34,9 @@ class TaskState {
   final List<TareaEstado> tareas;
   final String filtroActivo;
 
-  const TaskState({
-    required this.tareas,
-    this.filtroActivo = 'todas',
-  });
+  const TaskState({required this.tareas, this.filtroActivo = 'todas'});
 
-  TaskState copyWith({
-    List<TareaEstado>? tareas,
-    String? filtroActivo,
-  }) {
+  TaskState copyWith({List<TareaEstado>? tareas, String? filtroActivo}) {
     return TaskState(
       tareas: tareas ?? this.tareas,
       filtroActivo: filtroActivo ?? this.filtroActivo,

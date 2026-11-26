@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 
 import 'herramienta.dart';
 import 'modelo_agente.dart';
@@ -19,11 +20,11 @@ class AgenteTaskFlow {
     this.maxIteraciones = 5,
     this.alEjecutarHerramienta,
     this.alPensar,
-  })  : assert(maxIteraciones > 0),
-        _herramientas = {
-          for (final herramienta in herramientas)
-            herramienta.nombre: herramienta,
-        };
+  }) : assert(maxIteraciones > 0),
+       _herramientas = {
+         for (final herramienta in herramientas)
+           herramienta.nombre: herramienta,
+       };
 
   final ModeloAgente modelo;
 
@@ -41,11 +42,13 @@ class AgenteTaskFlow {
 
   bool _ocupado = false;
 
+  void _registrarEvento(Object evento) {
+    developer.log(evento.runtimeType.toString(), name: 'taskflow.agente');
+  }
+
   Future<String> enviar(String texto) async {
     if (texto.trim().isEmpty) {
-      throw const AgenteException(
-        'Escribe una instrucción para el asistente.',
-      );
+      throw const AgenteException('Escribe una instrucción para el asistente.');
     }
 
     if (_ocupado) {
@@ -58,9 +61,10 @@ class AgenteTaskFlow {
 
     final inicio = _historial.length;
 
-    _historial.add(
-      MensajeUsuario(texto.trim()),
-    );
+    final mensaje = MensajeUsuario(texto.trim());
+
+    _historial.add(mensaje);
+    _registrarEvento(mensaje);
 
     try {
       for (var i = 0; i < maxIteraciones; i++) {
@@ -72,10 +76,10 @@ class AgenteTaskFlow {
         );
 
         _historial.add(respuesta);
+        _registrarEvento(respuesta);
 
         if (respuesta.llamadas.isEmpty) {
-          return respuesta.texto ??
-              'No obtuve una respuesta.';
+          return respuesta.texto ?? 'No obtuve una respuesta.';
         }
 
         final resultados = <ResultadoHerramienta>[];
@@ -84,17 +88,14 @@ class AgenteTaskFlow {
           final resultado = await _ejecutar(llamada);
 
           resultados.add(
-            ResultadoHerramienta(
-              llamada.nombre,
-              resultado,
-              id: llamada.id,
-            ),
+            ResultadoHerramienta(llamada.nombre, resultado, id: llamada.id),
           );
         }
 
-        _historial.add(
-          MensajeResultados(resultados),
-        );
+        final mensajeResultados = MensajeResultados(resultados);
+
+        _historial.add(mensajeResultados);
+        _registrarEvento(mensajeResultados);
       }
 
       throw AgenteException(
@@ -102,10 +103,7 @@ class AgenteTaskFlow {
         'pasos sin terminar.',
       );
     } catch (_) {
-      _historial.removeRange(
-        inicio,
-        _historial.length,
-      );
+      _historial.removeRange(inicio, _historial.length);
 
       rethrow;
     } finally {
@@ -113,9 +111,9 @@ class AgenteTaskFlow {
     }
   }
 
-  Future<String> _ejecutar(
-    LlamadaHerramienta llamada,
-  ) async {
+  Future<String> _ejecutar(LlamadaHerramienta llamada) async {
+    _registrarEvento(llamada);
+
     final herramienta = _herramientas[llamada.nombre];
 
     if (herramienta == null) {
@@ -126,9 +124,9 @@ class AgenteTaskFlow {
     try {
       alEjecutarHerramienta?.call(llamada.nombre);
 
-      final accion = await herramienta.preparar(
-        llamada.argumentos,
-      );
+      final accion = await herramienta.preparar(llamada.argumentos);
+
+      _registrarEvento(accion);
 
       switch (accion) {
         case AccionInvalida(:final motivo):
@@ -137,13 +135,8 @@ class AgenteTaskFlow {
         case AccionLectura(:final ejecutar):
           return await ejecutar();
 
-        case AccionModificacion(
-            :final descripcion,
-            :final ejecutar,
-          ):
-          final autorizado = await confirmar(
-            descripcion,
-          );
+        case AccionModificacion(:final descripcion, :final ejecutar):
+          final autorizado = await confirmar(descripcion);
 
           if (!autorizado) {
             return 'El usuario RECHAZÓ esta acción: '

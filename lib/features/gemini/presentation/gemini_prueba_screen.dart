@@ -1,4 +1,3 @@
-
 import 'dart:async';
 
 import 'package:firebase_ai/firebase_ai.dart';
@@ -8,8 +7,7 @@ class GeminiPruebaScreen extends StatefulWidget {
   const GeminiPruebaScreen({super.key});
 
   @override
-  State<GeminiPruebaScreen> createState() =>
-      _GeminiPruebaScreenState();
+  State<GeminiPruebaScreen> createState() => _GeminiPruebaScreenState();
 }
 
 class _GeminiPruebaScreenState extends State<GeminiPruebaScreen> {
@@ -37,9 +35,9 @@ class _GeminiPruebaScreenState extends State<GeminiPruebaScreen> {
         model: 'gemini-3.5-flash-lite',
       );
 
-      final respuesta = await modelo.generateContent([
-        Content.text(pregunta),
-      ]).timeout(const Duration(seconds: 45));
+      final respuesta = await modelo
+          .generateContent([Content.text(pregunta)])
+          .timeout(const Duration(seconds: 45));
 
       if (!mounted) return;
 
@@ -87,17 +85,13 @@ class _GeminiPruebaScreenState extends State<GeminiPruebaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Prueba de Gemini'),
-      ),
+      appBar: AppBar(title: const Text('Prueba de Gemini')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Escribe una pregunta para Gemini:',
-            ),
+            const Text('Escribe una pregunta para Gemini:'),
             const SizedBox(height: 12),
             TextField(
               controller: _controlador,
@@ -113,20 +107,12 @@ class _GeminiPruebaScreenState extends State<GeminiPruebaScreen> {
               child: const Text('Preguntar a Gemini'),
             ),
             const SizedBox(height: 16),
-            if (_cargando)
-              const Center(
-                child: CircularProgressIndicator(),
-              ),
+            if (_cargando) const Center(child: CircularProgressIndicator()),
             if (_error != null)
-              Text(
-                _error!,
-                style: const TextStyle(color: Colors.red),
-              ),
+              Text(_error!, style: const TextStyle(color: Colors.red)),
             if (_resultado.isNotEmpty)
               Expanded(
-                child: SingleChildScrollView(
-                  child: SelectableText(_resultado),
-                ),
+                child: SingleChildScrollView(child: SelectableText(_resultado)),
               ),
           ],
         ),

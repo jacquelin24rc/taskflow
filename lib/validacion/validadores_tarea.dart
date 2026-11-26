@@ -1,4 +1,3 @@
-
 class ValidadoresTarea {
   static const int tituloMax = 60;
   static const int descripcionMax = 200;
@@ -41,8 +40,7 @@ class ValidadoresTarea {
 
     final ahora = DateTime.now();
     final hoy = DateTime(ahora.year, ahora.month, ahora.day);
-    final fechaSeleccionada =
-        DateTime(fecha.year, fecha.month, fecha.day);
+    final fechaSeleccionada = DateTime(fecha.year, fecha.month, fecha.day);
 
     if (fechaSeleccionada.isBefore(hoy)) {
       return 'La fecha límite no puede ser anterior a hoy.';

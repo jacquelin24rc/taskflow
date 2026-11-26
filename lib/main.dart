@@ -1,3 +1,4 @@
+import 'dart:async';
 
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -10,13 +11,49 @@ import 'datos/tareas_db.dart';
 import 'firebase_options.dart';
 import 'modelos/tarea.dart';
 
+import 'features/auth/data/memoria_auth_repository.dart';
+import 'features/auth/presentation/auth_providers.dart';
+import 'features/tareas/data/memoria_task_repository.dart';
+import 'features/tareas/presentation/tareas_providers.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Semana 20: seleccionar el backend.
+  const backend = String.fromEnvironment('BACKEND', defaultValue: 'firebase');
+
+  // Modo aislado para pruebas de integración.
+  if (backend == 'memoria') {
+    final authMemoria = MemoriaAuthRepository();
+    final tareasMemoria = MemoriaTaskRepository();
+
+    runApp(
+      ProviderScope(
+        overrides: [
+          authRepositoryProvider.overrideWith((ref) {
+            ref.onDispose(() {
+              unawaited(authMemoria.dispose());
+            });
+
+            return authMemoria;
+          }),
+          firestoreTaskRepositoryProvider.overrideWith((ref) {
+            ref.onDispose(() {
+              unawaited(tareasMemoria.dispose());
+            });
+
+            return tareasMemoria;
+          }),
+        ],
+        child: const TaskFlowApp(),
+      ),
+    );
+
+    return;
+  }
+
   // Inicializar Firebase para la Semana 17.
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Semana 19: configurar App Check para pruebas.
   // En modo debug se utiliza el proveedor de depuracion.
@@ -51,15 +88,9 @@ Future<void> main() async {
   final tareas = await db.todas();
 
   for (final tarea in tareas) {
-    debugPrint(
-      'SQLite: ${tarea.id} - ${tarea.titulo}',
-    );
+    debugPrint('SQLite: ${tarea.id} - ${tarea.titulo}');
   }
 
   // Iniciar TaskFlow con la arquitectura de Semana 17.
-  runApp(
-    const ProviderScope(
-      child: TaskFlowApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: TaskFlowApp()));
 }

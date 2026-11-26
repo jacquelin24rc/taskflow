@@ -1,4 +1,3 @@
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:taskflow/features/asistente/domain/agente.dart';
 import 'package:taskflow/features/asistente/domain/herramienta.dart';
@@ -24,9 +23,7 @@ class RepositorioPrueba implements TaskRepository {
 
   @override
   Future<void> actualizar(Tarea tarea) async {
-    final indice = tareas.indexWhere(
-      (elemento) => elemento.id == tarea.id,
-    );
+    final indice = tareas.indexWhere((elemento) => elemento.id == tarea.id);
 
     if (indice != -1) {
       tareas[indice] = tarea;
@@ -52,10 +49,8 @@ class ModeloGuionado implements ModeloAgente {
     List<MensajeAgente> historial,
     List<HerramientaAgente> herramientas,
   ) async {
-    if (historial.isNotEmpty &&
-        historial.last is MensajeResultados) {
-      final mensaje =
-          historial.last as MensajeResultados;
+    if (historial.isNotEmpty && historial.last is MensajeResultados) {
+      final mensaje = historial.last as MensajeResultados;
 
       ultimoResultado = mensaje.resultados
           .map((resultado) => resultado.resultado)
@@ -73,97 +68,67 @@ class ModeloGuionado implements ModeloAgente {
 }
 
 void main() {
-  test(
-    'Crear RECHAZADO: no guarda nada y el modelo lo sabe',
-    () async {
-      final repositorio = RepositorioPrueba();
+  test('Crear RECHAZADO: no guarda nada y el modelo lo sabe', () async {
+    final repositorio = RepositorioPrueba();
 
-      final fecha = DateTime.now().add(
-        const Duration(days: 7),
-      );
+    final fecha = DateTime.now().add(const Duration(days: 7));
 
-      final fechaTexto =
-          '${fecha.day.toString().padLeft(2, '0')}/'
-          '${fecha.month.toString().padLeft(2, '0')}/'
-          '${fecha.year}';
+    final fechaTexto =
+        '${fecha.day.toString().padLeft(2, '0')}/'
+        '${fecha.month.toString().padLeft(2, '0')}/'
+        '${fecha.year}';
 
-      final modelo = ModeloGuionado([
-        MensajeModelo(
-          llamadas: [
-            LlamadaHerramienta(
-              'crear_tarea',
-              {
-                'titulo': 'Leer Cap. 16',
-                'fecha_limite': fechaTexto,
-              },
-            ),
-          ],
-        ),
-        const MensajeModelo(
-          texto: 'Acción rechazada.',
-        ),
-      ]);
-
-      var confirmaciones = 0;
-
-      final agente = AgenteTaskFlow(
-        modelo: modelo,
-        herramientas: [
-          CrearTarea(repositorio),
+    final modelo = ModeloGuionado([
+      MensajeModelo(
+        llamadas: [
+          LlamadaHerramienta('crear_tarea', {
+            'titulo': 'Leer Cap. 16',
+            'fecha_limite': fechaTexto,
+          }),
         ],
-        confirmar: (_) async {
-          confirmaciones++;
-          return false;
-        },
-      );
+      ),
+      const MensajeModelo(texto: 'Acción rechazada.'),
+    ]);
 
-      await agente.enviar('Crea Leer Cap. 16');
+    var confirmaciones = 0;
 
-      expect(
-        await repositorio.observarTareas().first,
-        isEmpty,
-      );
+    final agente = AgenteTaskFlow(
+      modelo: modelo,
+      herramientas: [CrearTarea(repositorio)],
+      confirmar: (_) async {
+        confirmaciones++;
+        return false;
+      },
+    );
 
-      expect(confirmaciones, 1);
+    await agente.enviar('Crea Leer Cap. 16');
 
-      expect(
-        modelo.ultimoResultado,
-        contains('RECHAZÓ'),
-      );
-    },
-  );
+    expect(await repositorio.observarTareas().first, isEmpty);
 
-  test(
-    'Límite de iteraciones: un modelo en bucle se detiene',
-    () async {
-      final repositorio = RepositorioPrueba();
+    expect(confirmaciones, 1);
 
-      final modelo = ModeloGuionado([
-        const MensajeModelo(
-          llamadas: [
-            LlamadaHerramienta(
-              'listar_tareas',
-              {},
-            ),
-          ],
-        ),
-      ]);
+    expect(modelo.ultimoResultado, contains('RECHAZÓ'));
+  });
 
-      final agente = AgenteTaskFlow(
-        modelo: modelo,
-        herramientas: [
-          ListarTareas(repositorio),
-        ],
-        confirmar: (_) async => false,
-        maxIteraciones: 3,
-      );
+  test('Límite de iteraciones: un modelo en bucle se detiene', () async {
+    final repositorio = RepositorioPrueba();
 
-      await expectLater(
-        agente.enviar('Lista mis tareas'),
-        throwsA(isA<AgenteException>()),
-      );
+    final modelo = ModeloGuionado([
+      const MensajeModelo(llamadas: [LlamadaHerramienta('listar_tareas', {})]),
+    ]);
 
-      expect(modelo.llamadas, 3);
-    },
-  );
+    final agente = AgenteTaskFlow(
+      modelo: modelo,
+      herramientas: [ListarTareas(repositorio)],
+      confirmar: (_) async => false,
+      maxIteraciones: 3,
+    );
+
+    await expectLater(
+      agente.enviar('Lista mis tareas'),
+      throwsA(isA<AgenteException>()),
+    );
+
+    expect(modelo.llamadas, 3);
+  });
 }

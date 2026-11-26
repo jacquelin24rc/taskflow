@@ -1,4 +1,3 @@
-
 import 'herramienta.dart';
 
 sealed class MensajeAgente {
@@ -12,11 +11,7 @@ final class MensajeUsuario extends MensajeAgente {
 }
 
 class LlamadaHerramienta {
-  const LlamadaHerramienta(
-    this.nombre,
-    this.argumentos, {
-    this.id,
-  });
+  const LlamadaHerramienta(this.nombre, this.argumentos, {this.id});
 
   final String nombre;
   final Map<String, Object?> argumentos;
@@ -24,21 +19,14 @@ class LlamadaHerramienta {
 }
 
 final class MensajeModelo extends MensajeAgente {
-  const MensajeModelo({
-    this.texto,
-    this.llamadas = const [],
-  });
+  const MensajeModelo({this.texto, this.llamadas = const []});
 
   final String? texto;
   final List<LlamadaHerramienta> llamadas;
 }
 
 class ResultadoHerramienta {
-  const ResultadoHerramienta(
-    this.nombre,
-    this.resultado, {
-    this.id,
-  });
+  const ResultadoHerramienta(this.nombre, this.resultado, {this.id});
 
   final String nombre;
   final String resultado;

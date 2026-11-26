@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:io';
 
@@ -19,8 +18,7 @@ class EscanearTareaScreen extends ConsumerStatefulWidget {
       _EscanearTareaScreenState();
 }
 
-class _EscanearTareaScreenState
-    extends ConsumerState<EscanearTareaScreen> {
+class _EscanearTareaScreenState extends ConsumerState<EscanearTareaScreen> {
   final ImagePicker _imagePicker = ImagePicker();
 
   String? _rutaImagen;
@@ -64,7 +62,8 @@ class _EscanearTareaScreenState
         _textoReconocido = texto.trim();
 
         if (_textoReconocido.isEmpty) {
-          _error = 'No se detectó texto en la imagen. '
+          _error =
+              'No se detectó texto en la imagen. '
               'Prueba con una fotografía más clara.';
         }
       });
@@ -72,7 +71,8 @@ class _EscanearTareaScreenState
       if (!mounted) return;
 
       setState(() {
-        _error = 'No se pudo procesar la imagen. '
+        _error =
+            'No se pudo procesar la imagen. '
             'Verifica los permisos e inténtalo nuevamente.';
       });
     } finally {
@@ -85,28 +85,17 @@ class _EscanearTareaScreenState
   }
 
   void _revisarTarea() {
-    if (_textoReconocido.isEmpty ||
-        _procesando ||
-        _interpretando) {
+    if (_textoReconocido.isEmpty || _procesando || _interpretando) {
       return;
     }
 
-    final propuesta = PropuestaTarea.desdeTexto(
-      _textoReconocido,
-    );
+    final propuesta = PropuestaTarea.desdeTexto(_textoReconocido);
 
-    unawaited(
-      context.push(
-        '/tareas/nueva',
-        extra: propuesta,
-      ),
-    );
+    unawaited(context.push('/tareas/nueva', extra: propuesta));
   }
 
   Future<void> _interpretarConGemini() async {
-    if (_textoReconocido.isEmpty ||
-        _procesando ||
-        _interpretando) {
+    if (_textoReconocido.isEmpty || _procesando || _interpretando) {
       return;
     }
 
@@ -118,37 +107,33 @@ class _EscanearTareaScreenState
     try {
       final interpretador = InterpretadorGemini();
 
-      final propuesta = await interpretador.interpretar(
-        _textoReconocido,
-      );
+      final propuesta = await interpretador.interpretar(_textoReconocido);
 
       if (!mounted) return;
 
-      unawaited(
-        context.push(
-          '/tareas/nueva',
-          extra: propuesta,
-        ),
-      );
+      unawaited(context.push('/tareas/nueva', extra: propuesta));
     } on TimeoutException {
       if (!mounted) return;
 
       setState(() {
-        _error = 'Gemini tardó demasiado en responder. '
+        _error =
+            'Gemini tardó demasiado en responder. '
             'Intenta nuevamente.';
       });
     } on FormatException catch (e) {
       if (!mounted) return;
 
       setState(() {
-        _error = 'No se pudo interpretar la tarea: '
+        _error =
+            'No se pudo interpretar la tarea: '
             '${e.message}';
       });
     } catch (_) {
       if (!mounted) return;
 
       setState(() {
-        _error = 'No se pudo interpretar el texto con Gemini. '
+        _error =
+            'No se pudo interpretar el texto con Gemini. '
             'Verifica tu conexión e inténtalo nuevamente.';
       });
     } finally {
@@ -168,9 +153,7 @@ class _EscanearTareaScreenState
     ref.watch(reconocedorTextoProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Escanear tarea'),
-      ),
+      appBar: AppBar(title: const Text('Escanear tarea')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -178,10 +161,7 @@ class _EscanearTareaScreenState
           children: [
             const Text(
               'Reconocer texto de una imagen',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             const Text(
@@ -192,9 +172,7 @@ class _EscanearTareaScreenState
             FilledButton.icon(
               onPressed: ocupado
                   ? null
-                  : () => _seleccionarImagen(
-                        ImageSource.camera,
-                      ),
+                  : () => _seleccionarImagen(ImageSource.camera),
               icon: const Icon(Icons.camera_alt),
               label: const Text('Tomar fotografía'),
             ),
@@ -202,55 +180,37 @@ class _EscanearTareaScreenState
             OutlinedButton.icon(
               onPressed: ocupado
                   ? null
-                  : () => _seleccionarImagen(
-                        ImageSource.gallery,
-                      ),
+                  : () => _seleccionarImagen(ImageSource.gallery),
               icon: const Icon(Icons.photo_library),
               label: const Text('Elegir de galería'),
             ),
             if (_procesando) ...[
               const SizedBox(height: 24),
-              const Center(
-                child: CircularProgressIndicator(),
-              ),
+              const Center(child: CircularProgressIndicator()),
               const SizedBox(height: 8),
-              const Center(
-                child: Text('Reconociendo texto...'),
-              ),
+              const Center(child: Text('Reconociendo texto...')),
             ],
             if (_rutaImagen != null) ...[
               const SizedBox(height: 24),
               const Text(
                 'Imagen seleccionada',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
               const SizedBox(height: 12),
-              Image.file(
-                File(_rutaImagen!),
-                height: 220,
-                fit: BoxFit.contain,
-              ),
+              Image.file(File(_rutaImagen!), height: 220, fit: BoxFit.contain),
             ],
             if (_error != null) ...[
               const SizedBox(height: 20),
               Text(
                 _error!,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                ),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ],
             if (hayTexto) ...[
               const SizedBox(height: 24),
               const Text(
                 'Texto reconocido',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
               const SizedBox(height: 12),
               SelectableText(_textoReconocido),
@@ -262,21 +222,15 @@ class _EscanearTareaScreenState
               ),
               const SizedBox(height: 12),
               OutlinedButton.icon(
-                onPressed: ocupado
-                    ? null
-                    : _interpretarConGemini,
+                onPressed: ocupado ? null : _interpretarConGemini,
                 icon: const Icon(Icons.auto_awesome),
                 label: const Text('Interpretar con Gemini'),
               ),
               if (_interpretando) ...[
                 const SizedBox(height: 16),
-                const Center(
-                  child: CircularProgressIndicator(),
-                ),
+                const Center(child: CircularProgressIndicator()),
                 const SizedBox(height: 8),
-                const Center(
-                  child: Text('Interpretando con Gemini...'),
-                ),
+                const Center(child: Text('Interpretando con Gemini...')),
               ],
               const SizedBox(height: 12),
               const Text(

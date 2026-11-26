@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -14,8 +13,7 @@ class NuevaTareaScreen extends ConsumerStatefulWidget {
   final PropuestaTarea? inicial;
 
   @override
-  ConsumerState<NuevaTareaScreen> createState() =>
-      _NuevaTareaScreenState();
+  ConsumerState<NuevaTareaScreen> createState() => _NuevaTareaScreenState();
 }
 
 class _NuevaTareaScreenState extends ConsumerState<NuevaTareaScreen> {
@@ -152,10 +150,7 @@ class _NuevaTareaScreenState extends ConsumerState<NuevaTareaScreen> {
                 children: [
                   const Text(
                     'Registrar nueva tarea',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   if (widget.inicial != null) ...[
                     const SizedBox(height: 16),
@@ -221,10 +216,7 @@ class _NuevaTareaScreenState extends ConsumerState<NuevaTareaScreen> {
                       border: OutlineInputBorder(),
                     ),
                     items: const [
-                      DropdownMenuItem(
-                        value: '',
-                        child: Text('Sin categoría'),
-                      ),
+                      DropdownMenuItem(value: '', child: Text('Sin categoría')),
                       DropdownMenuItem(
                         value: 'Estudio',
                         child: Text('Estudio'),
@@ -256,9 +248,9 @@ class _NuevaTareaScreenState extends ConsumerState<NuevaTareaScreen> {
                       _fechaLimite == null
                           ? 'Seleccionar fecha límite'
                           : 'Fecha límite: '
-                              '${_fechaLimite!.day}/'
-                              '${_fechaLimite!.month}/'
-                              '${_fechaLimite!.year}',
+                                '${_fechaLimite!.day}/'
+                                '${_fechaLimite!.month}/'
+                                '${_fechaLimite!.year}',
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -268,20 +260,14 @@ class _NuevaTareaScreenState extends ConsumerState<NuevaTareaScreen> {
                         ? const SizedBox(
                             width: 18,
                             height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                            ),
+                            child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.save),
-                    label: Text(
-                      _guardando ? 'Guardando...' : 'Guardar tarea',
-                    ),
+                    label: Text(_guardando ? 'Guardando...' : 'Guardar tarea'),
                   ),
                   const SizedBox(height: 12),
                   OutlinedButton(
-                    onPressed: _guardando
-                        ? null
-                        : () => context.go('/tareas'),
+                    onPressed: _guardando ? null : () => context.go('/tareas'),
                     child: const Text('Cancelar'),
                   ),
                 ],

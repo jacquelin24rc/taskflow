@@ -33,10 +33,7 @@ class TarjetaEstadistica extends StatelessWidget {
           Text(
             etiqueta,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 11,
-              color: Colors.grey,
-            ),
+            style: const TextStyle(fontSize: 11, color: Colors.grey),
           ),
         ],
       ),

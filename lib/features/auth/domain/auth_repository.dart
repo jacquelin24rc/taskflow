@@ -10,10 +10,7 @@ abstract class AuthRepository {
     required String contrasena,
   });
 
-  Future<void> registrar({
-    required String correo,
-    required String contrasena,
-  });
+  Future<void> registrar({required String correo, required String contrasena});
 
   Future<void> cerrarSesion();
 }
